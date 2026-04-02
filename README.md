@@ -38,7 +38,7 @@ Community fork of [appmetrica/appmetrica-sdk-ios](https://github.com/appmetrica/
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/InstaRobot/appmetrica-sdk-apple", from: "6.0.0")
+    .package(url: "https://github.com/InstaRobot/appmetrica-sdk-apple", from: "1.0.0")
 ],
 ```
 
