@@ -24,7 +24,7 @@
 #import "AMASessionStorage.h"
 #import "AMASessionsCleaner.h"
 #import <AppMetricaPlatform/AppMetricaPlatform.h>
-#import "AMABundleInfoProviderMock.h"
+#import <AppMetricaTestUtils/AMABundleInfoProviderMock.h>
 
 SPEC_BEGIN(AMAReportRequestTests)
 

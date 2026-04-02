@@ -2,7 +2,7 @@
 #import <Foundation/Foundation.h>
 #import <AppMetricaKiwi/AppMetricaKiwi.h>
 #import <AppMetricaKeychain/AppMetricaKeychain.h>
-#import "AMAKeychainBridgeMock.h"
+#import <AppMetricaTestUtils/AMAKeychainBridgeMock.h>
 
 SPEC_BEGIN(AMAKeychainTests)
 

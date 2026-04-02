@@ -1,7 +1,7 @@
 
 #import <AppMetricaKiwi/AppMetricaKiwi.h>
 #import "AMARequestParametersTestHelper.h"
-#import "AMABundleInfoProviderMock.h"
+#import <AppMetricaTestUtils/AMABundleInfoProviderMock.h>
 #import <AppMetricaPlatform/AppMetricaPlatform.h>
 
 @implementation AMARequestParametersTestHelper

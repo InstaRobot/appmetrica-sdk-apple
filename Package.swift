@@ -221,7 +221,7 @@ let package = Package(
         //MARK: - AppMetrica TestUtils
         .target(
             target: .testUtils,
-            dependencies: [.coreUtils, .network, .storageUtils, .hostState, .keychain],
+            dependencies: [.coreUtils, .network, .storageUtils, .hostState, .keychain, .platform],
             externalDependencies: [.kiwi],
             includePrivacyManifest: false
         ),

@@ -5,7 +5,7 @@
 #import "AMAAttributionModelConfiguration.h"
 #import "AMAEnvironmentContainer.h"
 #import "AMAExternalAttributionConfiguration.h"
-#import "AMAKeychainBridgeMock.h"
+#import <AppMetricaTestUtils/AMAKeychainBridgeMock.h>
 #import "AMAMetricaInMemoryConfiguration.h"
 #import "AMAMetricaPersistentConfiguration.h"
 #import "AMAMockDatabase.h"

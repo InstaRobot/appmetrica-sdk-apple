@@ -3,7 +3,7 @@
 #import <AppMetricaStorageUtils/AppMetricaStorageUtils.h>
 #import "AMAFallbackKeychain.h"
 #import "AMAKeychain.h"
-#import "AMAKeychainBridgeMock.h"
+#import <AppMetricaTestUtils/AMAKeychainBridgeMock.h>
 #import <AppMetricaTestUtils/AppMetricaTestUtils.h>
 
 SPEC_BEGIN(AMAFallbackKeychainTests)

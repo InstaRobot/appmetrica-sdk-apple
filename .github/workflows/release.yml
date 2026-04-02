@@ -1,0 +1,86 @@
+name: Release (tag on main)
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  verify_on_main:
+    name: Verify tag is on main
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ensure tagged commit is on origin/main
+        run: |
+          git fetch origin main
+          if ! git merge-base --is-ancestor "${GITHUB_SHA}" origin/main; then
+            echo "::error::Tag points to a commit that is not contained in main. Create the tag only from main (or merge first)."
+            exit 1
+          fi
+
+  build_and_test_ios:
+    name: iOS - Build and Test
+    needs: verify_on_main
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare Environment Variables
+        run: |
+          echo "SCHEME=AppMetrica-Package" >> $GITHUB_ENV
+          echo "DERIVED_DATA_PATH=$RUNNER_TEMP/DerivedData" >> $GITHUB_ENV
+
+      - name: Select Simulator and OS
+        run: |
+          LATEST_IOS_VERSION=$(xcrun simctl list runtimes -j | ruby -e "require 'json'; puts JSON.parse(STDIN.read)['runtimes'].select { |r| r['platform'] == 'iOS' && r['isAvailable'] }.map { |r| r['version'] }.sort.last")
+          DEVICE=$(xcrun simctl list devices available 'iOS' -j | ruby -e "require 'json'; puts JSON.parse(STDIN.read)['devices'].values.flatten.select { |d| d['isAvailable'] && d['name'].include?('iPhone') }.last['name']")
+          echo Selected simulator: $DEVICE
+          echo Selected OS: $LATEST_IOS_VERSION
+          echo "DEVICE=$DEVICE" >> $GITHUB_ENV
+          echo "LATEST_IOS_VERSION=$LATEST_IOS_VERSION" >> $GITHUB_ENV
+
+      - name: Build
+        run: |
+          xcodebuild build -scheme "$SCHEME" -sdk iphonesimulator -destination "platform=iOS Simulator,name=$DEVICE,OS=$LATEST_IOS_VERSION" -derivedDataPath $DERIVED_DATA_PATH | xcpretty && exit ${PIPESTATUS[0]}
+
+      - name: Test
+        run: |
+          xcodebuild test -scheme "$SCHEME" -sdk iphonesimulator -destination "platform=iOS Simulator,name=$DEVICE,OS=$LATEST_IOS_VERSION" -derivedDataPath $DERIVED_DATA_PATH | xcpretty && exit ${PIPESTATUS[0]}
+
+  build_macos:
+    name: macOS - Build
+    needs: verify_on_main
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build for macOS
+        run: |
+          xcodebuild build -scheme "AppMetrica-Package" -destination "platform=macOS" | xcpretty && exit ${PIPESTATUS[0]}
+
+  publish_release:
+    name: Publish GitHub Release
+    needs: [build_and_test_ios, build_macos]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

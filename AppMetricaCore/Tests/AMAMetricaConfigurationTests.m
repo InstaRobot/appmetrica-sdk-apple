@@ -10,7 +10,7 @@
 #import "AMAStartupParametersConfiguration.h"
 #import "AMAMetricaPersistentConfiguration.h"
 #import "AMAMockDatabase.h"
-#import "AMAKeychainBridgeMock.h"
+#import <AppMetricaTestUtils/AMAKeychainBridgeMock.h>
 #import "AMAInstantFeaturesConfiguration.h"
 #import "AMAReporterTestHelper.h"
 #import <AppMetricaKeychain/AppMetricaKeychain.h>
