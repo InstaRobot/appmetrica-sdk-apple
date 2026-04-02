@@ -895,11 +895,22 @@ static NSTimeInterval const kAMAReporterAnonymousActivationDelay = 10.0;
 - (void)triggerSessionStartIfNeeded
 {
     AMAMetricaConfiguration *configuration = [AMAMetricaConfiguration sharedInstance];
-    BOOL shouldStartSession =
-        ([self.stateProvider hostState] == AMAHostAppStateForeground && configuration.inMemory.sessionsAutoTracking)
-        || configuration.inMemory.handleActivationAsSessionStart;
-    if (shouldStartSession) {
+    BOOL foreground = [self.stateProvider hostState] == AMAHostAppStateForeground;
+    BOOL autoTrack = configuration.inMemory.sessionsAutoTracking;
+    BOOL handleActivationAsSession = configuration.inMemory.handleActivationAsSessionStart;
+
+    // Foreground + sessionsAutoTracking: -[AMAAppMetricaImpl start] runs right after activation
+    // (activateWithConfiguration / activateAnonymously) and -startReporter resumes the session once.
+    // Starting here too would call -[AMAReporter start] twice (duplicate resumeSession).
+    if (handleActivationAsSession) {
+        if (autoTrack && foreground) {
+            return;
+        }
         [self.mainReporter start];
+        return;
+    }
+    if (foreground && autoTrack) {
+        return;
     }
 }
 
