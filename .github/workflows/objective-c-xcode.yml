@@ -20,8 +20,8 @@ jobs:
 
       - name: Select Simulator and OS
         run: |
-          LATEST_IOS_VERSION=$(xcrun simctl list runtimes -j | ruby -e "require 'json'; puts JSON.parse(STDIN.read)['runtimes'].select { |r| r['platform'] == 'iOS' && r['isAvailable'] }.map { |r| r['version'] }.sort.last")
-          DEVICE=$(xcrun simctl list devices available 'iOS' -j | ruby -e "require 'json'; puts JSON.parse(STDIN.read)['devices'].values.flatten.select { |d| d['isAvailable'] && d['name'].include?('iPhone') }.last['name']")
+          LATEST_IOS_VERSION=$(xcrun simctl list runtimes -j | ruby -e 'require "json"; d=JSON.parse(STDIN.read); r=(d["runtimes"]||[]).select{|x| x["platform"]=="iOS"&&x["isAvailable"]}.map{|x| x["version"]}.sort; if r.empty?; warn "::error::No available iOS simulator runtime (simctl list runtimes). Install or enable an iOS runtime on the runner."; exit 1; end; puts r.last')
+          DEVICE=$(xcrun simctl list devices available "iOS" -j | ruby -e 'require "json"; d=JSON.parse(STDIN.read); dev=((d["devices"]||{}).values.flatten.select{|x| x["isAvailable"]&&x["name"].to_s.include?("iPhone")}); if dev.empty?; warn "::error::No available iPhone simulator (simctl list devices available iOS)."; exit 1; end; puts dev.last["name"]')
           echo Selected simulator: $DEVICE
           echo Selected OS: $LATEST_IOS_VERSION
           echo "DEVICE=$DEVICE" >> $GITHUB_ENV
