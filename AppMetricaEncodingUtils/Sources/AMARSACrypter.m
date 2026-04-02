@@ -111,8 +111,10 @@ typedef OSStatus (*AMARSACryptoFunction)(SecKeyRef, SecPadding, const uint8_t *,
                                                      (__bridge CFDataRef)data, &cfError);
         if (cfData != NULL) {
             encryptedData = (__bridge_transfer NSData *)cfData;
-        } else {
+        } else if (cfError != NULL) {
             [[self class] setError:&currentError withCFError:cfError];
+        } else {
+            [[self class] setError:&currentError withErrorStatus:errSecInternalError];
         }
 #endif
         CFRelease(keyRef);
@@ -142,8 +144,10 @@ typedef OSStatus (*AMARSACryptoFunction)(SecKeyRef, SecPadding, const uint8_t *,
                                                      (__bridge CFDataRef)data, &cfError);
         if (cfData != NULL) {
             decryptedData = (__bridge_transfer NSData *)cfData;
-        } else {
+        } else if (cfError != NULL) {
             [[self class] setError:&currentError withCFError:cfError];
+        } else {
+            [[self class] setError:&currentError withErrorStatus:errSecInternalError];
         }
 #endif
         CFRelease(keyRef);
