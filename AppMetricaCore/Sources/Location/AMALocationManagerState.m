@@ -79,8 +79,10 @@
 - (BOOL)isLocationSystemPermissionGranted
 {
     CLAuthorizationStatus authorizationStatus = [self currentAuthorizationStatus];
-    BOOL result = authorizationStatus == kCLAuthorizationStatusAuthorizedWhenInUse ||
-                  authorizationStatus == kCLAuthorizationStatusAuthorizedAlways;
+    BOOL result = authorizationStatus == kCLAuthorizationStatusAuthorizedAlways;
+#if TARGET_OS_IPHONE
+    result = result || authorizationStatus == kCLAuthorizationStatusAuthorizedWhenInUse;
+#endif
     return result;
 }
 

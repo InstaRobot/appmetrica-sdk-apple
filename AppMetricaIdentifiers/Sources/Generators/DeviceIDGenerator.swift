@@ -1,7 +1,6 @@
 
-import UIKit
+import Foundation
 
 protocol DeviceIDGenerator {
     func generateDeviceID() -> DeviceID?
 }
-

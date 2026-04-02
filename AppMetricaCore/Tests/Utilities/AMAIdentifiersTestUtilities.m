@@ -1,5 +1,7 @@
 
+#if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
+#endif
 #import "AMAIdentifiersTestUtilities.h"
 #import "AMAStartupClientIdentifier.h"
 #import <AdSupport/AdSupport.h>
@@ -45,10 +47,12 @@ static AMAIdentifierProviderMock *identifierManagerMock;
 
 + (void)stubIFV:(NSString *)UUID
 {
+#if TARGET_OS_IPHONE
     id deviceMock = [UIDevice nullMock];
     NSUUID *ifv = [[NSUUID alloc] initWithUUIDString:UUID];
     [deviceMock stub:@selector(identifierForVendor) andReturn:ifv];
     [UIDevice stub:@selector(currentDevice) andReturn:deviceMock];
+#endif
 }
 
 + (void)stubDeviceIDHash:(NSString *)deviceIDHash
@@ -71,7 +75,9 @@ static AMAIdentifierProviderMock *identifierManagerMock;
 
 + (void)destubIFV
 {
+#if TARGET_OS_IPHONE
     [UIDevice clearStubs];
+#endif
 }
 
 + (void)destubIDFA

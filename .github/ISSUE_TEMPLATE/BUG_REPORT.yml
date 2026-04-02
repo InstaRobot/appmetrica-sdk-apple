@@ -36,9 +36,6 @@ body:
         How did you add AppMetrica SDK to your project?
       options:
         - Swift Package Manager
-        - CocoaPods
-        - Carthage
-        - Zip
         - Other
     validations:
       required: true
@@ -92,24 +89,6 @@ body:
         
         ```json
         // Replace with your Package.resolved contents
-        ```
-        
-        </details>
-    validations:
-      required: false
-  - type: textarea
-    attributes:
-      label: 🍫 Attach Podfile.lock (CocoaPods Users)
-      description: |
-        If you're using CocoaPods, attaching your `Podfile.lock` will assist in debugging version-related issues.
-      value: |
-        <!--- Replace text between the <details> tags with your Podfile.lock contents. --->
-        <details>
-        <summary>Click to expand <code>Podfile.lock</code></summary>
-        <br>
-        
-        ```ruby
-        // Replace with your Podfile.lock contents
         ```
         
         </details>

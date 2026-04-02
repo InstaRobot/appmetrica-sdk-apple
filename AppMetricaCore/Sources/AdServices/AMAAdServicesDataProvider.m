@@ -2,10 +2,21 @@
 #import "AMACore.h"
 #import "AMAAdServicesDataProvider.h"
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140300
-    #if !TARGET_OS_TV
-        #import <AdServices/AdServices.h>
+#define AMA_ADSERVICES_AVAILABLE 0
+#if TARGET_OS_IPHONE && !TARGET_OS_TV
+    #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140300
+        #undef AMA_ADSERVICES_AVAILABLE
+        #define AMA_ADSERVICES_AVAILABLE 1
     #endif
+#elif TARGET_OS_MAC && !TARGET_OS_IPHONE
+    #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 110100
+        #undef AMA_ADSERVICES_AVAILABLE
+        #define AMA_ADSERVICES_AVAILABLE 1
+    #endif
+#endif
+
+#if AMA_ADSERVICES_AVAILABLE
+    #import <AdServices/AdServices.h>
 #endif
 
 #import "AMAFramework.h"
@@ -31,9 +42,8 @@
 
 - (NSString *)tokenWithError:(NSError **)error
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140300
-#if !TARGET_OS_TV && !TARGET_OS_SIMULATOR
-    if (@available(iOS 14.3, *)) {
+#if AMA_ADSERVICES_AVAILABLE && !TARGET_OS_SIMULATOR
+    if (@available(iOS 14.3, macOS 11.1, *)) {
         NSError *localError = nil;
         Class aaAttribution = [self.adServices classFromString:@"AAAttribution"];
         if (aaAttribution != Nil) {
@@ -54,7 +64,6 @@
             return token;
         }
     }
-#endif
 #endif
     AMALogInfo(@"AdServices unavailable");
     [AMAErrorUtilities fillError:error withInternalErrorName:@"AdServices unavailable"];

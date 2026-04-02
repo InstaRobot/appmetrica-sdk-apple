@@ -54,7 +54,22 @@
 
 - (AMAPermissionGrantType)locationGrantTypeForPermission:(AMAPermissionKey)permission
 {
-    switch ([CLLocationManager authorizationStatus]) {
+    CLAuthorizationStatus status;
+#if TARGET_OS_IPHONE
+    if (@available(iOS 14.0, tvOS 14.0, *)) {
+        status = [[CLLocationManager new] authorizationStatus];
+    } else {
+        status = [CLLocationManager authorizationStatus];
+    }
+#else
+    if (@available(macOS 11.0, *)) {
+        status = [[CLLocationManager new] authorizationStatus];
+    } else {
+        status = [CLLocationManager authorizationStatus];
+    }
+#endif
+
+    switch (status) {
         case kCLAuthorizationStatusNotDetermined:
             return AMAPermissionGrantTypeNotDetermined;
         case kCLAuthorizationStatusRestricted:
@@ -63,12 +78,14 @@
             return AMAPermissionGrantTypeDenied;
         case kCLAuthorizationStatusAuthorizedAlways:
             return AMAPermissionGrantTypeAuthorized;
+#if TARGET_OS_IPHONE
         case kCLAuthorizationStatusAuthorizedWhenInUse: {
             if ([permission isEqualToString:kAMAPermissionKeyLocationAlways]) {
                 return AMAPermissionGrantTypeDenied;
             }
             return AMAPermissionGrantTypeAuthorized;
         }
+#endif
         default:
             return AMAPermissionGrantTypeNotDetermined;
     }

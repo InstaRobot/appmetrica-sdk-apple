@@ -1,10 +1,26 @@
-# [AppMetrica SDK](https://appmetrica.io)
+# [AppMetrica SDK](https://appmetrica.io) — Apple Platforms
 
-[![CocoaPods Compatible](https://img.shields.io/cocoapods/v/AppMetricaCore.svg?style=for-the-badge)](https://cocoapods.org/pods/AppMetricaCore)
-[![SPM Index Swift Versions](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fappmetrica%2Fappmetrica-sdk-ios%2Fbadge%3Ftype%3Dswift-versions&style=for-the-badge)](https://swiftpackageindex.com/appmetrica/appmetrica-sdk-ios)
-[![SPM Index Platforms](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fappmetrica%2Fappmetrica-sdk-ios%2Fbadge%3Ftype%3Dplatforms&style=for-the-badge)](https://swiftpackageindex.com/appmetrica/appmetrica-sdk-ios)
+[![SPM Compatible](https://img.shields.io/badge/SPM-compatible-brightgreen?style=for-the-badge)](https://github.com/InstaRobot/appmetrica-sdk-apple)
+[![Platforms](https://img.shields.io/badge/Platforms-iOS%2013%2B%20%7C%20tvOS%2013%2B%20%7C%20macOS%2011%2B-blue?style=for-the-badge)](#)
+[![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
-AppMetrica is a one-stop marketing platform for install attribution, app analytics, and push campaigns. AppMetrica provides the three key features for assessing your app's performance: ad tracking, usage analytics, and crash analytics.
+Community fork of [appmetrica/appmetrica-sdk-ios](https://github.com/appmetrica/appmetrica-sdk-ios) with **macOS support** and SPM-only distribution.
+
+## Differences from the Original SDK
+
+| Feature | Original SDK | This Fork |
+|---|---|---|
+| **macOS support** | iOS & tvOS only | iOS 13+, tvOS 13+, **macOS 11+** |
+| **Package manager** | SPM + CocoaPods | SPM only (CocoaPods removed) |
+| **Repository name** | `appmetrica-sdk-ios` | `appmetrica-sdk-apple` |
+| **Device ID (macOS)** | N/A | IOKit hardware UUID |
+| **Deep links (macOS)** | N/A | `NSAppleEventManager` (`kAEGetURL`) |
+| **Memory pressure (macOS)** | N/A | `DISPATCH_SOURCE_TYPE_MEMORYPRESSURE` |
+| **Lifecycle (macOS)** | N/A | `NSApplication` notifications |
+| **AdServices (macOS)** | N/A | `@available(macOS 11.1, *)` guard |
+| **Encryption (macOS)** | `SecKeyEncrypt`/`SecKeyDecrypt` | `SecKeyCreateEncryptedData`/`SecKeyCreateDecryptedData` |
+| **Screenshot tracking** | UIKit notification | No-op on macOS (no system equivalent) |
+| **Jailbreak detection** | Active checks | Disabled on macOS (always returns not-rooted) |
 
 ## Installation
 
@@ -13,7 +29,7 @@ AppMetrica is a one-stop marketing platform for install attribution, app analyti
 #### Through Xcode:
 
 1. Go to **File** > **Add Package Dependency**.
-2. Put the GitHub link of the AppMetrica SDK: https://github.com/appmetrica/appmetrica-sdk-ios.
+2. Put the GitHub link: https://github.com/InstaRobot/appmetrica-sdk-apple.
 3. In **Add to Target**, select **None** for modules you don't want.
 
 #### Via Package.swift Manifest:
@@ -22,7 +38,7 @@ AppMetrica is a one-stop marketing platform for install attribution, app analyti
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/appmetrica/appmetrica-sdk-ios", from: "6.0.0")
+    .package(url: "https://github.com/InstaRobot/appmetrica-sdk-apple", from: "6.0.0")
 ],
 ```
 
@@ -33,50 +49,21 @@ dependencies: [
     name: "YourTargetName",
     dependencies: [
         // For all analytics features, add this umbrella module:
-        .product(name: "AppMetricaAnalytics", package: "appmetrica-sdk-ios"),
+        .product(name: "AppMetricaAnalytics", package: "appmetrica-sdk-apple"),
 
         // Or add specific modules:
-        // .product(name: "AppMetricaCore", package: "appmetrica-sdk-ios"),
-        // .product(name: "AppMetricaCrashes", package: "appmetrica-sdk-ios"),
-        // .product(name: "AppMetricaAdSupport", package: "appmetrica-sdk-ios"),
+        // .product(name: "AppMetricaCore", package: "appmetrica-sdk-apple"),
+        // .product(name: "AppMetricaCrashes", package: "appmetrica-sdk-apple"),
+        // .product(name: "AppMetricaAdSupport", package: "appmetrica-sdk-apple"),
     ]
 )
 ```
-
-### CocoaPods
-
-1. If you haven't set up CocoaPods, run `pod init` in your project directory.
-2. In your Podfile, add AppMetrica dependencies:
-
-```ruby
-target 'YourAppName' do
-    # For all analytics features, add this umbrella module:
-    pod 'AppMetricaAnalytics', '~> 6.0.0'
-
-    # If you need specific integration, skip 'AppMetricaAnalytics' and add specific modules:
-    pod 'AppMetricaCore', '~> 6.0.0'
-    # Add other modules like 'AppMetricaCrashes', 'AppMetricaWebKit' or 'AppMetricaAdSupport' if needed.
-end
-```
-
-3. Install the dependencies using `pod install`.
-4. Open your project in Xcode with the `.xcworkspace` file.
 
 ### Optional
 
 #### Children's Apps:
 
-To meet Apple's App Store rules regarding children's privacy (like COPPA), add AppMetrica but leave out the `AppMetricaAdSupport` module:
-
-- **CocoaPods**:
-
-  ```ruby
-  pod 'AppMetricaCore', '~> 6.0.0'
-  pod 'AppMetricaCrashes', '~> 6.0.0'
-  pod 'AppMetricaWebKit', '~> 6.0.0'
-  ```
-
-- **SPM**: Don't include `AppMetricaAdSupport`. Either choose **None** for this module when selecting packages in Xcode or specify dependencies in `Package.swift`.
+To meet Apple's App Store rules regarding children's privacy (like COPPA), add AppMetrica but leave out the `AppMetricaAdSupport` module. Don't include `AppMetricaAdSupport` — either choose **None** for this module when selecting packages in Xcode or specify dependencies in `Package.swift`.
 
 ### Modules Overview
 
@@ -85,20 +72,17 @@ To meet Apple's App Store rules regarding children's privacy (like COPPA), add A
 - `AppMetricaCrashes`: Enables crash reports.
 - `AppMetricaWebKit`: Used for handling events from WebKit.
 - `AppMetricaAdSupport`: Needed for IDFA collection, don't include for children's apps.
-- `AppMetricaScreenshot`: Allows AppMetrica SDK to collect screenshot taken events.
+- `AppMetricaScreenshot`: Allows AppMetrica SDK to collect screenshot taken events (iOS/tvOS only).
 - `AppMetricaIDSync`: Enhances integration capabilities and improves overall system performance in cross-platform environments.
 
 ## Integration Quickstart
 
-Here's how to add AppMetrica to your project (works for both SwiftUI and UIKit):
+Here's how to add AppMetrica to your project:
 
-1. `import AppMetricaCore` in your `AppDelegate`.
+1. `import AppMetricaCore` in your app delegate.
+2. Initialize AppMetrica with your API key at launch.
 
-2. Initialize AppMetrica with your API key in the `application(_:didFinishLaunchingWithOptions:)` method.
-
-### For UIKit:
-
-Put this in your `AppDelegate.swift`:
+### For UIKit (iOS/tvOS):
 
 ```swift
 import AppMetricaCore
@@ -111,9 +95,7 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 }
 ```
 
-### For SwiftUI:
-
-Create a new Swift file for `AppDelegate` compatibility and use this code:
+### For SwiftUI (iOS/tvOS):
 
 ```swift
 import UIKit
@@ -127,19 +109,58 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 }
-```
 
-Then in your `App` struct:
-
-```swift
 @main
 struct YourAppNameApp: App {
-    // Use the `@UIApplicationDelegateAdaptor` property wrapper to work with AppDelegate and set up AppMetrica
     @UIApplicationDelegateAdaptor var appDelegate: AppDelegate
 
     var body: some Scene {
         WindowGroup {
             ContentView()
+        }
+    }
+}
+```
+
+### For macOS (AppKit):
+
+```swift
+import Cocoa
+import AppMetricaCore
+
+class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        if let configuration = AppMetricaConfiguration(apiKey: "Your_API_Key") {
+            AppMetrica.activate(with: configuration)
+        }
+    }
+}
+
+@main
+struct YourAppNameApp: App {
+    @NSApplicationDelegateAdaptor var appDelegate: AppDelegate
+
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
+    }
+}
+```
+
+### For macOS (Storyboard-based):
+
+In your `AppDelegate.swift`:
+
+```swift
+import Cocoa
+import AppMetricaCore
+
+@main
+class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        if let configuration = AppMetricaConfiguration(apiKey: "Your_API_Key") {
+            AppMetrica.activate(with: configuration)
         }
     }
 }

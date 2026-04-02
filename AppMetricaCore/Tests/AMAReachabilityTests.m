@@ -1,5 +1,6 @@
 
 #import <AppMetricaKiwi/AppMetricaKiwi.h>
+#import <SystemConfiguration/SystemConfiguration.h>
 #import "AMAReachability+TestUtilities.h"
 
 SPEC_BEGIN(AMAReachabilityTests)
@@ -43,13 +44,15 @@ describe(@"AMAReachabilityTests", ^{
             [reachability setFlags:kSCNetworkReachabilityFlagsReachable];
             [[theValue([reachability status]) should] equal:theValue(AMAReachabilityStatusReachableViaWiFi)];
         });
-        it(@"Should return reachable via wi-fi status if kSCNetworkReachabilityFlagsIsWWAN does not exist", ^{
+#if TARGET_OS_IPHONE
+        it(@"Should return reachable via WWAN status if kSCNetworkReachabilityFlagsIsWWAN exists", ^{
             [AMAReachability amatest_stubSharedInstance];
             AMAReachability *reachability = [AMAReachability sharedInstance];
             [reachability stub:@selector(isStarted) andReturn:theValue(YES)];
             [reachability setFlags:kSCNetworkReachabilityFlagsReachable | kSCNetworkReachabilityFlagsIsWWAN];
             [[theValue([reachability status]) should] equal:theValue(AMAReachabilityStatusReachableViaWWAN)];
         });
+#endif
         it(@"Should not be unknown if flags update occured", ^{
             [AMAReachability amatest_stubSharedInstance];
             AMAReachability *reachability = [AMAReachability sharedInstance];
@@ -82,7 +85,11 @@ describe(@"AMAReachabilityTests", ^{
                                                           }];
             AMAReachability *reachability = [AMAReachability sharedInstance];
             [reachability stub:@selector(isStarted) andReturn:theValue(YES)];
+#if TARGET_OS_IPHONE
             reachability.flags = kSCNetworkReachabilityFlagsReachable | kSCNetworkReachabilityFlagsIsWWAN;
+#else
+            reachability.flags = kSCNetworkReachabilityFlagsReachable;
+#endif
 
             [[theValue(isNotificationsReceived) should] equal:theValue(YES)];
         });
@@ -91,7 +98,11 @@ describe(@"AMAReachabilityTests", ^{
 
             AMAReachability *reachability = [AMAReachability sharedInstance];
             [reachability stub:@selector(isStarted) andReturn:theValue(YES)];
+#if TARGET_OS_IPHONE
             reachability.flags = kSCNetworkReachabilityFlagsReachable | kSCNetworkReachabilityFlagsIsWWAN;
+#else
+            reachability.flags = kSCNetworkReachabilityFlagsReachable;
+#endif
 
             [[NSNotificationCenter defaultCenter] addObserverForName:kAMAReachabilityStatusDidChange
                                                               object:nil
@@ -100,7 +111,11 @@ describe(@"AMAReachabilityTests", ^{
                                                               isNotificationsReceived = YES;
                                                           }];
 
+#if TARGET_OS_IPHONE
             reachability.flags = kSCNetworkReachabilityFlagsReachable | kSCNetworkReachabilityFlagsIsWWAN;
+#else
+            reachability.flags = kSCNetworkReachabilityFlagsReachable;
+#endif
 
             [[theValue(isNotificationsReceived) should] equal:theValue(NO)];
         });

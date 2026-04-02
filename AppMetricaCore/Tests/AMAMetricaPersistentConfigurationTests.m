@@ -1,4 +1,4 @@
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 #import <AppMetricaKiwi/AppMetricaKiwi.h>
 #import <AppMetricaStorageUtils/AppMetricaStorageUtils.h>
 #import <AppMetricaTestUtils/AppMetricaTestUtils.h>

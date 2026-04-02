@@ -3,7 +3,9 @@
 #import "AMAIDSyncRequestResponse.h"
 #import "AMAIDSyncRequest.h"
 #import "AMAIDSyncCore.h"
+#if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
+#endif
 
 static NSString *const kAMAIFVParamKey = @"ifv";
 static NSString *const kAMADeviceIDParamKey = @"deviceid";
@@ -65,7 +67,11 @@ static NSString *const kAMAUUIDParamKey = @"uuid";
 {
     NSMutableDictionary *parameters = [[super GETParameters] mutableCopy];
 
+#if TARGET_OS_IPHONE
     NSString *ifv = [UIDevice currentDevice].identifierForVendor.UUIDString;
+#else
+    NSString *ifv = [AMAAppMetrica deviceID];
+#endif
     NSString *deviceID = [AMAAppMetrica deviceID];
     NSString *uuid = [AMAAppMetrica UUID];
 

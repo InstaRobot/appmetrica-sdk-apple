@@ -1,7 +1,9 @@
 #import "AMAScreenshotWatcher.h"
 #import <AppMetricaCore/AppMetricaCore.h>
 #import "AMAScreenshotReporting.h"
+#if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
+#endif
 
 
 @interface AMAScreenshotWatcher ()
@@ -43,6 +45,7 @@
             return;
         }
         
+#if TARGET_OS_IPHONE
         if (isStarted) {
             [self.notificationCenter addObserver:self
                                         selector:@selector(handleNotification:)
@@ -51,6 +54,7 @@
         } else {
             [self.notificationCenter removeObserver:self];
         }
+#endif
         
         _isStarted = isStarted;
     }

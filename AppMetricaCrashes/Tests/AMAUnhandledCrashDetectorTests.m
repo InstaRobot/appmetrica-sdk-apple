@@ -201,24 +201,21 @@ describe(@"AMAUnhandledCrashDetector", ^{
         });
 
         it(@"Should save NO to AMAStorageStringKeyAppWasTerminated on receiving AMAHostAppStateForeground", ^{
-            [hostAppStateProvider stub:@selector(hostState) andReturn: theValue(AMAHostAppStateForeground)];
             [[storage should] receive:@selector(setBool:forKey:)
                         withArguments:theValue(NO), kAMAUserDefaultsStringKeyAppWasTerminated];
-            [crashDetector hostStateDidChange:hostAppStateProvider];
+            [crashDetector hostStateDidChange:AMAHostAppStateForeground];
         });
 
         it(@"Should save NO to AMAStorageStringKeyAppWasTerminated on receiving AMAHostAppStateBackground", ^{
-            [hostAppStateProvider stub:@selector(hostState) andReturn:theValue(AMAHostAppStateBackground)];
             [[storage should] receive:@selector(setBool:forKey:)
                         withArguments:theValue(NO), kAMAUserDefaultsStringKeyAppWasTerminated];
-            [crashDetector hostStateDidChange:hostAppStateProvider];
+            [crashDetector hostStateDidChange:AMAHostAppStateBackground];
         });
 
         it(@"Should save YES to AMAStorageStringKeyAppWasInBackground on receiving AMAHostAppStateTerminated", ^{
-            [hostAppStateProvider stub:@selector(hostState) andReturn:theValue(AMAHostAppStateTerminated)];
             [[storage should] receive:@selector(setBool:forKey:)
                         withArguments:theValue(YES), kAMAUserDefaultsStringKeyAppWasInBackground];
-            [crashDetector hostStateDidChange:hostAppStateProvider];
+            [crashDetector hostStateDidChange:AMAHostAppStateTerminated];
         });
 
         it(@"Should save YES to AMAStorageStringKeyAppWasInBackground on receiving AMAHostAppStateBackground", ^{

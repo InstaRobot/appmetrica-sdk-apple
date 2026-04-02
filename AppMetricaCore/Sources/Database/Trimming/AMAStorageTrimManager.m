@@ -7,13 +7,22 @@
 #import "AMAPlainStorageTrimmer.h"
 #import "AMAReporterNotifications.h"
 #import "AMAEventsCountStorageTrimmer.h"
+#if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
+#else
+#import <dispatch/dispatch.h>
+#endif
 
 @interface AMAStorageTrimManager ()
 
 @property (nonatomic, copy, readonly) NSString *apiKey;
 @property (nonatomic, strong, readonly) AMAEventsCleaner *eventsCleaner;
 @property (nonatomic, strong, readonly) AMANotificationsListener *listener;
+#if !TARGET_OS_IPHONE
+@property (nonatomic, strong) dispatch_source_t memoryPressureSource;
+@property (nonatomic, strong) NSHashTable *memoryPressureDatabases;
+@property (nonatomic, strong) NSMutableArray *memoryPressureTrimmers;
+#endif
 
 @end
 
@@ -71,11 +80,46 @@
         [[AMAStorageEventsTrimTransaction alloc] initWithCleaner:self.eventsCleaner];
     AMAPlainStorageTrimmer *trimmer = [[AMAPlainStorageTrimmer alloc] initWithTrimTransaction:transaction];
     __weak __typeof(database) weakDatabase = database;
+#if TARGET_OS_IPHONE
+    NSNotificationName memoryNotification = UIApplicationDidReceiveMemoryWarningNotification;
     [self.listener subscribeObject:database
-                    toNotification:UIApplicationDidReceiveMemoryWarningNotification
+                    toNotification:memoryNotification
                       withCallback:^(NSNotification *notification) {
         [trimmer trimDatabase:weakDatabase];
     }];
+#else
+    @synchronized (self) {
+        if (self.memoryPressureDatabases == nil) {
+            self.memoryPressureDatabases = [NSHashTable weakObjectsHashTable];
+            self.memoryPressureTrimmers = [NSMutableArray array];
+        }
+        [self.memoryPressureDatabases addObject:database];
+        [self.memoryPressureTrimmers addObject:trimmer];
+
+        if (self.memoryPressureSource == nil) {
+            dispatch_source_t source = dispatch_source_create(
+                DISPATCH_SOURCE_TYPE_MEMORYPRESSURE,
+                0,
+                DISPATCH_MEMORYPRESSURE_WARN | DISPATCH_MEMORYPRESSURE_CRITICAL,
+                dispatch_get_main_queue()
+            );
+            __weak __typeof(self) weakSelf = self;
+            dispatch_source_set_event_handler(source, ^{
+                __strong __typeof(weakSelf) strongSelf = weakSelf;
+                if (strongSelf == nil) { return; }
+                @synchronized (strongSelf) {
+                    NSArray *trimmers = [strongSelf.memoryPressureTrimmers copy];
+                    NSArray *databases = strongSelf.memoryPressureDatabases.allObjects;
+                    for (NSUInteger i = 0; i < trimmers.count && i < databases.count; i++) {
+                        [trimmers[i] trimDatabase:databases[i]];
+                    }
+                }
+            });
+            dispatch_resume(source);
+            self.memoryPressureSource = source;
+        }
+    }
+#endif
 }
 
 - (void)subscribeDatabaseToEventsCountTrim:(id<AMADatabaseProtocol>)database

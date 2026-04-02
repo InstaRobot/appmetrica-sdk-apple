@@ -5,13 +5,13 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build_and_test:
-    name: Build and Test using xcodebuild command
+  build_and_test_ios:
+    name: iOS - Build and Test
     runs-on: macos-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Prepare Environment Variables
         run: |
@@ -34,4 +34,16 @@ jobs:
       - name: Test
         run: |
           xcodebuild test -scheme "$SCHEME" -sdk iphonesimulator -destination "platform=iOS Simulator,name=$DEVICE,OS=$LATEST_IOS_VERSION" -derivedDataPath $DERIVED_DATA_PATH | xcpretty && exit ${PIPESTATUS[0]}
+
+  build_macos:
+    name: macOS - Build
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build for macOS
+        run: |
+          xcodebuild build -scheme "AppMetrica-Package" -destination "platform=macOS" | xcpretty && exit ${PIPESTATUS[0]}
 

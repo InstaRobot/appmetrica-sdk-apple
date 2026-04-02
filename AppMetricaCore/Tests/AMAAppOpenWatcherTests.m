@@ -6,6 +6,11 @@
 #import "AMAMetricaConfiguration.h"
 #import "AMAMetricaConfigurationTestUtilities.h"
 #import "AMADeepLinkController.h"
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+#else
+#import <AppKit/AppKit.h>
+#endif
 
 @interface AMAAppOpenWatcher ()
 
@@ -38,9 +43,14 @@ describe(@"AMAAppOpenWatcher", ^{
     context(@"Start watching", ^{
         it(@"Should start watching", ^{
             appOpenWatcher = [[AMAAppOpenWatcher alloc] initWithNotificationCenter:notificationCenter];
+#if TARGET_OS_IPHONE
+            NSNotificationName expectedName = UIApplicationDidFinishLaunchingNotification;
+#else
+            NSNotificationName expectedName = NSApplicationDidFinishLaunchingNotification;
+#endif
             [[notificationCenter should] receive:@selector(addObserver:selector:name:object:)
                                    withArguments:appOpenWatcher, kw_any(),
-                                                 UIApplicationDidFinishLaunchingNotification, nil];
+                                                 expectedName, nil];
             [appOpenWatcher startWatchingWithDeeplinkController:deeplinkController];
         });
     });
@@ -69,6 +79,7 @@ describe(@"AMAAppOpenWatcher", ^{
             [[deeplinkController should] receive:@selector(reportUrl:ofType:isAuto:) withArguments:nil, @"open", theValue(YES)];
             [appOpenWatcher didFinishLaunching:notification];
         });
+#if TARGET_OS_IPHONE
         it (@"Empty userActivity dictionary", ^{
             NSDictionary *userInfo = @{ UIApplicationLaunchOptionsUserActivityDictionaryKey : @{} };
             [notification stub:@selector(userInfo) andReturn:userInfo];
@@ -173,6 +184,7 @@ describe(@"AMAAppOpenWatcher", ^{
                                    withArguments:deeplinkURL, @"open", theValue(YES)];
             [appOpenWatcher didFinishLaunching:notification];
         });
+#endif
     });
 });
 

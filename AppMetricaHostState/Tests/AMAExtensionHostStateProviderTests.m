@@ -1,5 +1,5 @@
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 #import <AppMetricaKiwi/AppMetricaKiwi.h>
 #import <AppMetricaHostState/AppMetricaHostState.h>
 #import "AMAExtensionHostStateProvider.h"
@@ -27,6 +27,7 @@ describe(@"AMAExtensionHostStateProvider", ^{
         [[theValue([provider hostState]) should] equal:theValue(AMAHostAppStateBackground)];
     });
 
+#if TARGET_OS_IPHONE
     it(@"should remain background state on host app become active", ^{
         if (NSExtensionHostDidBecomeActiveNotification != nil) {
             [center postNotificationName:NSExtensionHostDidBecomeActiveNotification object:nil];
@@ -66,6 +67,12 @@ describe(@"AMAExtensionHostStateProvider", ^{
         });
 
     });
+#else
+    it(@"should change state to foreground on force update to foreground", ^{
+        [provider forceUpdateToForeground];
+        [[theValue([provider hostState]) should] equal:theValue(AMAHostAppStateForeground)];
+    });
+#endif
     
     it(@"Should comform to AMAHostStateControlling", ^{
         [[provider should] conformToProtocol:@protocol(AMAHostStateControlling)];

@@ -10,34 +10,21 @@
 
 #import "AMAJailbreakCheck.h"
 
-// UIKit
+#if TARGET_OS_IPHONE
+
 #import <UIKit/UIKit.h>
-
-// stat
 #import <sys/stat.h>
-
-// sysctl
 #import <sys/sysctl.h>
 
-// System Version Less Than
 #define SYSTEM_VERSION_LESS_THAN(v)                 ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
 
-// Failed jailbroken checks
-/* Jailbreak Check Definitions */
-
-// Define the filesystem check
 #define FILECHECK [NSFileManager defaultManager] fileExistsAtPath:
-// Define the exe path
 #define EXEPATH [[NSBundle mainBundle] executablePath]
-// Define the plist path
 #define PLISTPATH [[NSBundle mainBundle] infoDictionary]
 
-// Jailbreak Check Definitions
 #define CYDIAPACKAGE    @"cydia://package/com.fake.package"
 #define CYDIALOC        @"/Applications/Cydia.app"
 #define HIDDENFILES     [NSArray arrayWithObjects:@"/Applications/RockApp.app",@"/Applications/Icy.app",@"/usr/sbin/sshd",@"/usr/bin/sshd",@"/usr/libexec/sftp-server",@"/Applications/WinterBoard.app",@"/Applications/SBSettings.app",@"/Applications/MxTube.app",@"/Applications/IntelliScreen.app",@"/Library/MobileSubstrate/DynamicLibraries/Veency.plist",@"/Library/MobileSubstrate/DynamicLibraries/LiveClock.plist",@"/private/var/lib/apt",@"/private/var/stash",@"/System/Library/LaunchDaemons/com.ikey.bbot.plist",@"/System/Library/LaunchDaemons/com.saurik.Cydia.Startup.plist",@"/private/var/tmp/cydia.log",@"/private/var/lib/cydia", @"/etc/clutch.conf", @"/var/cache/clutch.plist", @"/etc/clutch_cracked.plist", @"/var/cache/clutch_cracked.plist", @"/var/lib/clutch/overdrive.dylib", @"/var/root/Documents/Cracked/", nil]
-
-/* End Jailbreak Definitions */
 
 @implementation AMAJailbreakCheck
 
@@ -275,3 +262,19 @@
 }
 
 @end
+
+#else // !TARGET_OS_IPHONE (macOS)
+
+@implementation AMAJailbreakCheck
+
++ (int)jailbroken {
+    return NOTJAIL;
+}
+
++ (NSArray *)runningProcesses {
+    return nil;
+}
+
+@end
+
+#endif

@@ -9,6 +9,9 @@
 #import "AMAPlainStorageTrimmer.h"
 #import "AMAEventsCleaner.h"
 #import <AppMetricaTestUtils/AppMetricaTestUtils.h>
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+#endif
 
 SPEC_BEGIN(AMAStorageTrimManagerTests)
 
@@ -139,6 +142,7 @@ describe(@"AMAStorageTrimManager", ^{
                 [[transaction should] receive:@selector(initWithCleaner:) withArguments:eventsCleaner];
                 [manager subscribeDatabase:database];
             });
+#if TARGET_OS_IPHONE
             it(@"Should use valid notification", ^{
                 [[listener should] receive:@selector(subscribeObject:toNotification:withCallback:)
                              withArguments:database, UIApplicationDidReceiveMemoryWarningNotification, kw_any()];
@@ -159,6 +163,7 @@ describe(@"AMAStorageTrimManager", ^{
                     callback(nil);
                 });
             });
+#endif
         });
         
         it(@"Should conform to AMAStorageTrimming", ^{

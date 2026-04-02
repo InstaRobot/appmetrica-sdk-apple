@@ -11,9 +11,12 @@ SPEC_BEGIN(AMAPermissionsExtractorTests)
 describe(@"AMAPermissionsExtractor", ^{
     
     AMAPermissionsExtractor *__block extractor = nil;
+    CLLocationManager *__block mockLocationManager = nil;
 
     beforeEach(^{
         extractor = [[AMAPermissionsExtractor alloc] init];
+        mockLocationManager = [CLLocationManager nullMock];
+        [CLLocationManager stub:@selector(new) andReturn:mockLocationManager];
     });
     afterEach(^{
         [CLLocationManager clearStubs];
@@ -22,11 +25,14 @@ describe(@"AMAPermissionsExtractor", ^{
 
     AMAPermission *__block permission = nil;
 
+#if TARGET_OS_IPHONE
     context(@"Location `When in use` permission", ^{
 
         beforeEach(^{
             [CLLocationManager stub:@selector(authorizationStatus)
                           andReturn:theValue(kCLAuthorizationStatusAuthorizedWhenInUse)];
+            [mockLocationManager stub:@selector(authorizationStatus)
+                            andReturn:theValue(kCLAuthorizationStatusAuthorizedWhenInUse)];
         });
         
         context(@"AMAPermissionKeyLocationWhenInUse", ^{
@@ -63,12 +69,15 @@ describe(@"AMAPermissionsExtractor", ^{
             });
         });
     });
+#endif
     
     context(@"Location `Always` permission", ^{
 
         beforeEach(^{
             [CLLocationManager stub:@selector(authorizationStatus)
                           andReturn:theValue(kCLAuthorizationStatusAuthorizedAlways)];
+            [mockLocationManager stub:@selector(authorizationStatus)
+                            andReturn:theValue(kCLAuthorizationStatusAuthorizedAlways)];
         });
         
         context(@"AMAPermissionKeyLocationWhenInUse", ^{
@@ -111,6 +120,8 @@ describe(@"AMAPermissionsExtractor", ^{
         beforeEach(^{
             [CLLocationManager stub:@selector(authorizationStatus)
                           andReturn:theValue(kCLAuthorizationStatusDenied)];
+            [mockLocationManager stub:@selector(authorizationStatus)
+                            andReturn:theValue(kCLAuthorizationStatusDenied)];
         });
         
         context(@"AMAPermissionKeyLocationWhenInUse", ^{
@@ -153,6 +164,8 @@ describe(@"AMAPermissionsExtractor", ^{
         beforeEach(^{
             [CLLocationManager stub:@selector(authorizationStatus)
                           andReturn:theValue(kCLAuthorizationStatusRestricted)];
+            [mockLocationManager stub:@selector(authorizationStatus)
+                            andReturn:theValue(kCLAuthorizationStatusRestricted)];
         });
         
         context(@"AMAPermissionKeyLocationWhenInUse", ^{
@@ -195,6 +208,8 @@ describe(@"AMAPermissionsExtractor", ^{
         beforeEach(^{
             [CLLocationManager stub:@selector(authorizationStatus)
                           andReturn:theValue(kCLAuthorizationStatusNotDetermined)];
+            [mockLocationManager stub:@selector(authorizationStatus)
+                            andReturn:theValue(kCLAuthorizationStatusNotDetermined)];
         });
 
         context(@"AMAPermissionKeyLocationWhenInUse", ^{

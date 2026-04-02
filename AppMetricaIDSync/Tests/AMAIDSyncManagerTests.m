@@ -143,7 +143,7 @@ describe(@"AMAIDSyncManager", ^{
                       withArguments:request];
         });
         
-        void (^stubPrecondition)(BOOL *) = ^(BOOL *precondition) {
+        void (^stubPrecondition)(BOOL) = ^(BOOL precondition) {
             [preconditionHandler stub:@selector(canExecuteRequestWithPreconditions:completion:)
                             withBlock:^id(NSArray *params) {
                 void (^completion)(BOOL) = params[1];

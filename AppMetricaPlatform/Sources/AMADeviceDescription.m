@@ -1,5 +1,9 @@
 
+#if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
+#else
+#import <AppKit/AppKit.h>
+#endif
 #import <sys/utsname.h>
 #include <objc/runtime.h>
 #import <Security/Security.h>
@@ -49,12 +53,16 @@
 
 + (NSString *)appPlatform
 {
+#if TARGET_OS_IPHONE
     switch ([[UIDevice currentDevice] userInterfaceIdiom]) {
         case UIUserInterfaceIdiomPad:
             return @"ipad";
         default:
             return @"iphone";
     }
+#else
+    return @"mac";
+#endif
 }
 
 #pragma mark - Screen
@@ -63,7 +71,7 @@
 {
 #if TARGET_OS_TV
     return nil;
-#else
+#elif TARGET_OS_IPHONE
     NSString *model = [self model];
     
     NSDictionary<NSString *, NSNumber *> *dpiValues = [[self class] dpiValues];
@@ -77,23 +85,41 @@
     
     NSString *result = [NSString stringWithFormat:@"%d", (int)dpi];
     return result;
+#else
+    CGFloat scale = [self screenScale];
+    NSUInteger dpi = (NSUInteger)(72.0 * scale);
+    return [NSString stringWithFormat:@"%lu", (unsigned long)dpi];
 #endif
 }
 
 + (NSString *)screenWidth
 {
+#if TARGET_OS_IPHONE
     CGRect bounds = [[UIScreen mainScreen] bounds];
     CGFloat width = CGRectGetWidth(bounds);
-    NSString *result = [NSString stringWithFormat:@"%.0f", width];
-    return result;
+#else
+    CGFloat width = 0;
+    NSScreen *screen = [NSScreen mainScreen];
+    if (screen != nil) {
+        width = CGRectGetWidth(screen.frame);
+    }
+#endif
+    return [NSString stringWithFormat:@"%.0f", width];
 }
 
 + (NSString *)screenHeight
 {
+#if TARGET_OS_IPHONE
     CGRect bounds = [[UIScreen mainScreen] bounds];
     CGFloat height = CGRectGetHeight(bounds);
-    NSString *result = [NSString stringWithFormat:@"%.0f", height];
-    return result;
+#else
+    CGFloat height = 0;
+    NSScreen *screen = [NSScreen mainScreen];
+    if (screen != nil) {
+        height = CGRectGetHeight(screen.frame);
+    }
+#endif
+    return [NSString stringWithFormat:@"%.0f", height];
 }
 
 + (NSString *)scalefactor
@@ -123,26 +149,39 @@
 
 + (NSString *)OSVersion
 {
-    NSString *systemVersion = [[UIDevice currentDevice] systemVersion];
-    return systemVersion;
+#if TARGET_OS_IPHONE
+    return [[UIDevice currentDevice] systemVersion];
+#else
+    NSOperatingSystemVersion version = [[NSProcessInfo processInfo] operatingSystemVersion];
+    return [NSString stringWithFormat:@"%ld.%ld.%ld",
+            (long)version.majorVersion, (long)version.minorVersion, (long)version.patchVersion];
+#endif
 }
 
 + (BOOL)isDeviceModelOfType:(NSString *)type
 {
+#if TARGET_OS_IPHONE
     NSString *model = [[[UIDevice currentDevice] model] lowercaseString];
+#else
+    NSString *model = [[self model] lowercaseString];
+#endif
     return ([model rangeOfString:[type lowercaseString]].location != NSNotFound);
 }
 
 #pragma mark - Private
 
-//FIXME: mainScreen deprecated
 + (CGFloat)screenScale
 {
+#if TARGET_OS_IPHONE
     CGFloat screenScale = 1.0f;
     if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
         screenScale = [[UIScreen mainScreen] scale];
     }
     return screenScale;
+#else
+    NSScreen *screen = [NSScreen mainScreen];
+    return screen != nil ? screen.backingScaleFactor : 1.0;
+#endif
 }
 
 + (NSDictionary<NSString *, NSNumber *> *)dpiValues

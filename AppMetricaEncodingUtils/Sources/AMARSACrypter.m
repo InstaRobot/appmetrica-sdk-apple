@@ -4,7 +4,9 @@
 
 NSString *const kAMARSACrypterErrorDomain = @"io.appmetrica.AMARSACrypter";
 
+#if TARGET_OS_IPHONE
 typedef OSStatus (*AMARSACryptoFunction)(SecKeyRef, SecPadding, const uint8_t *, size_t, uint8_t *, size_t *);
+#endif
 
 @implementation AMARSACrypter
 
@@ -14,6 +16,13 @@ typedef OSStatus (*AMARSACryptoFunction)(SecKeyRef, SecPadding, const uint8_t *,
         *pError = [NSError errorWithDomain:kAMARSACrypterErrorDomain
                                       code:status
                                   userInfo:nil];
+    }
+}
+
++ (void)setError:(NSError **)pError withCFError:(CFErrorRef)cfError
+{
+    if (pError != NULL && cfError != NULL) {
+        *pError = (__bridge_transfer NSError *)cfError;
     }
 }
 
@@ -45,6 +54,8 @@ typedef OSStatus (*AMARSACryptoFunction)(SecKeyRef, SecPadding, const uint8_t *,
     }
     return keyRef;
 }
+
+#if TARGET_OS_IPHONE
 
 - (NSData *)processData:(NSData *)data
              withKeyRef:(SecKeyRef)keyRef
@@ -83,6 +94,8 @@ typedef OSStatus (*AMARSACryptoFunction)(SecKeyRef, SecPadding, const uint8_t *,
     return [result copy];
 }
 
+#endif
+
 - (NSData *)encodeData:(NSData *)data error:(NSError **)error
 {
     NSError *currentError = nil;
@@ -90,7 +103,18 @@ typedef OSStatus (*AMARSACryptoFunction)(SecKeyRef, SecPadding, const uint8_t *,
 
     SecKeyRef keyRef = [self keyForKey:self.publicKey error:&currentError];
     if (currentError == nil) {
+#if TARGET_OS_IPHONE
         encryptedData = [self processData:data withKeyRef:keyRef processingFunction:SecKeyEncrypt error:&currentError];
+#else
+        CFErrorRef cfError = NULL;
+        CFDataRef cfData = SecKeyCreateEncryptedData(keyRef, kSecKeyAlgorithmRSAEncryptionPKCS1,
+                                                     (__bridge CFDataRef)data, &cfError);
+        if (cfData != NULL) {
+            encryptedData = (__bridge_transfer NSData *)cfData;
+        } else {
+            [[self class] setError:&currentError withCFError:cfError];
+        }
+#endif
         CFRelease(keyRef);
     }
 
@@ -110,7 +134,18 @@ typedef OSStatus (*AMARSACryptoFunction)(SecKeyRef, SecPadding, const uint8_t *,
 
     SecKeyRef keyRef = [self keyForKey:self.privateKey error:&currentError];
     if (currentError == nil) {
+#if TARGET_OS_IPHONE
         decryptedData = [self processData:data withKeyRef:keyRef processingFunction:SecKeyDecrypt error:&currentError];
+#else
+        CFErrorRef cfError = NULL;
+        CFDataRef cfData = SecKeyCreateDecryptedData(keyRef, kSecKeyAlgorithmRSAEncryptionPKCS1,
+                                                     (__bridge CFDataRef)data, &cfError);
+        if (cfData != NULL) {
+            decryptedData = (__bridge_transfer NSData *)cfData;
+        } else {
+            [[self class] setError:&currentError withCFError:cfError];
+        }
+#endif
         CFRelease(keyRef);
     }
 

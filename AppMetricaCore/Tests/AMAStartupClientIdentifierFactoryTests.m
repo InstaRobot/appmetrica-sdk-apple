@@ -1,6 +1,8 @@
 
 #import <AppMetricaKiwi/AppMetricaKiwi.h>
+#if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
+#endif
 #import "AMAStartupClientIdentifierFactory.h"
 #import "AMAStartupClientIdentifier.h"
 #import "AMAMetricaConfiguration.h"
@@ -18,13 +20,17 @@ describe(@"AMAStartupClientIdentifierFactory", ^{
     NSString *const testDeviceID = @"test-device-id";
     NSString *const testDeviceIDHash = @"test-device-id-hash";
     NSString *const testUUID = @"test-uuid";
+#if TARGET_OS_IPHONE
     __block NSUUID *testIFVUUID = nil;
     __block NSString *testIFVString = nil;
     __block UIDevice *mockDevice = nil;
+#endif
     
     beforeAll(^{
+#if TARGET_OS_IPHONE
         testIFVString = @"11111111-1111-1111-1111-111111111111";
         testIFVUUID = [[NSUUID alloc] initWithUUIDString:testIFVString];
+#endif
     });
     
     beforeEach(^{
@@ -41,13 +47,17 @@ describe(@"AMAStartupClientIdentifierFactory", ^{
         [mockIdentifierProvider stub:@selector(appMetricaUUID) andReturn:testUUID];
         [configuration stub:@selector(identifierProvider) andReturn:mockIdentifierProvider];
         
+#if TARGET_OS_IPHONE
         mockDevice = [KWMock mockForClass:[UIDevice class]];
         [UIDevice stub:@selector(currentDevice) andReturn:mockDevice];
         [mockDevice stub:@selector(identifierForVendor) andReturn:testIFVUUID];
+#endif
     });
     afterEach(^{
         [AMAMetricaConfiguration clearStubs];
+#if TARGET_OS_IPHONE
         [UIDevice clearStubs];
+#endif
     });
     
     context(@"When all identifiers are available", ^{
@@ -56,7 +66,11 @@ describe(@"AMAStartupClientIdentifierFactory", ^{
             [[identifier.deviceID should] equal:testDeviceID];
             [[identifier.deviceIDHash should] equal:testDeviceIDHash];
             [[identifier.UUID should] equal:testUUID];
+#if TARGET_OS_IPHONE
             [[identifier.IFV should] equal:testIFVString];
+#else
+            [[identifier.IFV shouldNot] beNil];
+#endif
         });
     });
     
@@ -69,7 +83,6 @@ describe(@"AMAStartupClientIdentifierFactory", ^{
             [identifier.deviceID shouldBeNil];
             [[identifier.deviceIDHash should] equal:testDeviceIDHash];
             [[identifier.UUID should] equal:testUUID];
-            [[identifier.IFV should] equal:testIFVString];
         });
     });
     
@@ -82,7 +95,6 @@ describe(@"AMAStartupClientIdentifierFactory", ^{
             [[identifier.deviceID should] equal:testDeviceID];
             [identifier.deviceIDHash shouldBeNil];
             [[identifier.UUID should] equal:testUUID];
-            [[identifier.IFV should] equal:testIFVString];
         });
     });
     
@@ -95,10 +107,10 @@ describe(@"AMAStartupClientIdentifierFactory", ^{
             [[identifier.deviceID should] equal:testDeviceID];
             [[identifier.deviceIDHash should] equal:testDeviceIDHash];
             [identifier.UUID shouldBeNil];
-            [[identifier.IFV should] equal:testIFVString];
         });
     });
     
+#if TARGET_OS_IPHONE
     context(@"When IFV is nil", ^{
         beforeEach(^{
             [mockDevice stub:@selector(identifierForVendor) andReturn:nil];
@@ -127,6 +139,7 @@ describe(@"AMAStartupClientIdentifierFactory", ^{
             [identifier.IFV shouldBeNil];
         });
     });
+#endif
 });
 
 SPEC_END

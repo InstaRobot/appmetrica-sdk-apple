@@ -1,6 +1,10 @@
 
 #import <AppMetricaHostState/AppMetricaHostState.h>
+#if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
+#else
+#import <AppKit/AppKit.h>
+#endif
 #import "AMAApplicationHostStateProvider.h"
 #import "AMAHostStateLogging.h"
 
@@ -38,6 +42,7 @@
 
 - (void)subscribeToNotifications
 {
+#if TARGET_OS_IPHONE
     [self.notificationCenter addObserver:self
                                 selector:@selector(applicationDidBecomeActive)
                                     name:UIApplicationDidBecomeActiveNotification
@@ -52,6 +57,22 @@
                                 selector:@selector(applicationWillTerminate)
                                     name:UIApplicationWillTerminateNotification
                                   object:nil];
+#elif TARGET_OS_MAC
+    [self.notificationCenter addObserver:self
+                                selector:@selector(applicationDidBecomeActive)
+                                    name:NSApplicationDidBecomeActiveNotification
+                                  object:nil];
+
+    [self.notificationCenter addObserver:self
+                                selector:@selector(applicationWillResignActive)
+                                    name:NSApplicationWillResignActiveNotification
+                                  object:nil];
+
+    [self.notificationCenter addObserver:self
+                                selector:@selector(applicationWillTerminate)
+                                    name:NSApplicationWillTerminateNotification
+                                  object:nil];
+#endif
 }
 
 - (void)forceUpdateToForeground

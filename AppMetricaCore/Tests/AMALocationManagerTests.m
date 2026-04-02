@@ -106,6 +106,7 @@ describe(@"AMALocationManager", ^{
             setAuthorizationStatus(kCLAuthorizationStatusAuthorizedAlways, YES);
             [[delegate shouldNot] beNil];
         });
+#if TARGET_OS_IPHONE
         it(@"Should start location updates if authorization status is changed after start without calling delegate", ^{
             stubSystemLocationManager();
             [[AMALocationManager sharedManager] start];
@@ -113,6 +114,7 @@ describe(@"AMALocationManager", ^{
             [[systemLocationManager should] receive:startUpdatingLocationSelector];
             setAuthorizationStatus(kCLAuthorizationStatusAuthorizedWhenInUse, YES);
         });
+#endif
         it(@"Should create location manager when location permission are granted", ^{
             stubSystemLocationManager();
             [[AMALocationManager sharedManager] start];
@@ -200,6 +202,7 @@ describe(@"AMALocationManager", ^{
                 [[systemLocationManager should] receive:@selector(startMonitoringVisits)];
                 [[AMALocationManager sharedManager] updateAuthorizationStatus];
             });
+#if TARGET_OS_IPHONE
             it(@"Should not start visits monitoring if authorization status `When In Use`", ^{
                 stubSystemLocationManager();
                 [[AMALocationManager sharedManager] start];
@@ -207,6 +210,7 @@ describe(@"AMALocationManager", ^{
                 [[systemLocationManager shouldNot] receive:@selector(startMonitoringVisits)];
                 [[AMALocationManager sharedManager] start];
             });
+#endif
             it(@"Should start visits monitoring if authorization status `Always`", ^{
                 stubSystemLocationManager();
                 [[AMALocationManager sharedManager] start];

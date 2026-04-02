@@ -1,9 +1,23 @@
 
+#if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
+#else
+#import <AppKit/AppKit.h>
+#endif
 #import <AppMetricaKiwi/AppMetricaKiwi.h>
 #import <AppMetricaHostState/AppMetricaHostState.h>
 #import "AMAApplicationHostStateProvider.h"
 #import "AMAHostStatePublisher.h"
+
+#if TARGET_OS_IPHONE
+#define AMATestDidBecomeActiveNotification UIApplicationDidBecomeActiveNotification
+#define AMATestWillResignActiveNotification UIApplicationWillResignActiveNotification
+#define AMATestWillTerminateNotification UIApplicationWillTerminateNotification
+#else
+#define AMATestDidBecomeActiveNotification NSApplicationDidBecomeActiveNotification
+#define AMATestWillResignActiveNotification NSApplicationWillResignActiveNotification
+#define AMATestWillTerminateNotification NSApplicationWillTerminateNotification
+#endif
 
 SPEC_BEGIN(AMAApplicationHostStateProviderTests)
 
@@ -29,7 +43,7 @@ describe(@"AMAApplicationHostStateProvider", ^{
     });
     
     it(@"should change state to foreground on app become active", ^{
-        [center postNotificationName:UIApplicationDidBecomeActiveNotification object:nil];
+        [center postNotificationName:AMATestDidBecomeActiveNotification object:nil];
         [[theValue([provider hostState]) should] equal:theValue(AMAHostAppStateForeground)];
     });
     
@@ -39,12 +53,12 @@ describe(@"AMAApplicationHostStateProvider", ^{
     });
     
     it(@"should change state to background on app resign active", ^{
-        [center postNotificationName:UIApplicationWillResignActiveNotification object:nil];
+        [center postNotificationName:AMATestWillResignActiveNotification object:nil];
         [[theValue([provider hostState]) should] equal:theValue(AMAHostAppStateBackground)];
     });
     
     it(@"should change state to foreground on app terminate", ^{
-        [center postNotificationName:UIApplicationWillTerminateNotification object:nil];
+        [center postNotificationName:AMATestWillTerminateNotification object:nil];
         [[theValue([provider hostState]) should] equal:theValue(AMAHostAppStateTerminated)];
     });
     
@@ -52,13 +66,13 @@ describe(@"AMAApplicationHostStateProvider", ^{
         
         it(@"should notify delegate on app become active", ^{
             [[hostStateProviderObserver should] receive:@selector(hostStateProviderDidChangeHostState)];
-            [center postNotificationName:UIApplicationDidBecomeActiveNotification object:nil];
+            [center postNotificationName:AMATestDidBecomeActiveNotification object:nil];
         });
         
         it(@"should not notify delegate on app become active if it is already foreground", ^{
-            [center postNotificationName:UIApplicationDidBecomeActiveNotification object:nil];
+            [center postNotificationName:AMATestDidBecomeActiveNotification object:nil];
             [[hostStateProviderObserver shouldNot] receive:@selector(hostStateProviderDidChangeHostState)];
-            [center postNotificationName:UIApplicationDidBecomeActiveNotification object:nil];
+            [center postNotificationName:AMATestDidBecomeActiveNotification object:nil];
         });
         
         it(@"should notify delegate on force update to foreground", ^{
@@ -74,24 +88,24 @@ describe(@"AMAApplicationHostStateProvider", ^{
         
         it(@"should notify delegate on app resign active", ^{
             [[hostStateProviderObserver should] receive:@selector(hostStateProviderDidChangeHostState)];
-            [center postNotificationName:UIApplicationWillResignActiveNotification object:nil];
+            [center postNotificationName:AMATestWillResignActiveNotification object:nil];
         });
         
         it(@"should not notify delegate on app resign active if it is already background", ^{
-            [center postNotificationName:UIApplicationWillResignActiveNotification object:nil];
+            [center postNotificationName:AMATestWillResignActiveNotification object:nil];
             [[hostStateProviderObserver shouldNot] receive:@selector(hostStateProviderDidChangeHostState)];
-            [center postNotificationName:UIApplicationWillResignActiveNotification object:nil];
+            [center postNotificationName:AMATestWillResignActiveNotification object:nil];
         });
         
         it(@"should notify delegate on app will terminated", ^{
             [[hostStateProviderObserver should] receive:@selector(hostStateProviderDidChangeHostState)];
-            [center postNotificationName:UIApplicationWillTerminateNotification object:nil];
+            [center postNotificationName:AMATestWillTerminateNotification object:nil];
         });
         
         it(@"should not notify delegate on app will terminated if it al already terminated", ^{
-            [center postNotificationName:UIApplicationWillTerminateNotification object:nil];
+            [center postNotificationName:AMATestWillTerminateNotification object:nil];
             [[hostStateProviderObserver shouldNot] receive:@selector(hostStateProviderDidChangeHostState)];
-            [center postNotificationName:UIApplicationWillTerminateNotification object:nil];
+            [center postNotificationName:AMATestWillTerminateNotification object:nil];
         });
     });
     

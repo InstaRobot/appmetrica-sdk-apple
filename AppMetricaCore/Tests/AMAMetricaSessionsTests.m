@@ -1,6 +1,11 @@
 
 #import <AppMetricaKiwi/AppMetricaKiwi.h>
 #import <AppMetricaTestUtils/AppMetricaTestUtils.h>
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+#else
+#import <AppKit/AppKit.h>
+#endif
 #import "AMAAppMetrica+TestUtilities.h"
 #import "AMAAppMetricaConfiguration.h"
 #import "AMAAppMetricaImplTestFactory.h"
@@ -51,9 +56,11 @@ describe(@"AMAMetricaSessions", ^{
         sleep(2);
     };
     void (^clearAndStart)(void) = ^{
+#if TARGET_OS_IPHONE
         UIApplication *app = [UIApplication nullMock];
         [app stub:@selector(applicationState) andReturn:theValue(UIApplicationStateBackground)];
         [UIApplication stub:@selector(sharedApplication) andReturn:app];
+#endif
         stubSharedImpl();
         start();
     };
@@ -62,7 +69,9 @@ describe(@"AMAMetricaSessions", ^{
         [AMAMetricaConfigurationTestUtilities destubConfiguration];
         [AMAAppMetrica clearStubs];
         [reporterTestHelper destub];
+#if TARGET_OS_IPHONE
         [UIApplication clearStubs];
+#endif
         [NSDate clearStubs];
     });
     
@@ -96,7 +105,9 @@ describe(@"AMAMetricaSessions", ^{
     context(@"Does start session with activateWithApiKey", ^{
         
         afterEach(^{
+#if TARGET_OS_IPHONE
             [UIApplication clearStubs];
+#endif
         });
         
         it(@"Should create session on first launch", ^{
@@ -110,9 +121,11 @@ describe(@"AMAMetricaSessions", ^{
             [stateStorage markFirstEventSent];
             [sessionStorage newGeneralSessionCreatedAt:[NSDate date] error:nil];
 
+#if TARGET_OS_IPHONE
             UIApplication *app = [UIApplication nullMock];
             [app stub:@selector(applicationState) andReturn:theValue(UIApplicationStateBackground)];
             [UIApplication stub:@selector(sharedApplication) andReturn:app];
+#endif
             start();
 
             AMASession *createdSession = [sessionStorage amatest_sessionWithOid:@2];
@@ -171,7 +184,12 @@ describe(@"AMAMetricaSessions", ^{
                 NSString *manualApiKey = @"550e8400-e29b-41d4-a716-446655440001";
                 id<AMAAppMetricaReporting> __unused reporter = [AMAAppMetrica reporterForAPIKey:manualApiKey];
                 start();
-                [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidBecomeActiveNotification
+#if TARGET_OS_IPHONE
+                NSNotificationName becomeActiveNotification = UIApplicationDidBecomeActiveNotification;
+#else
+                NSNotificationName becomeActiveNotification = NSApplicationDidBecomeActiveNotification;
+#endif
+                [[NSNotificationCenter defaultCenter] postNotificationName:becomeActiveNotification
                                                                     object:nil];
 
                 AMASession *session =

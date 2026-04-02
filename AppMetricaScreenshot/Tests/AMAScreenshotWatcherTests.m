@@ -45,6 +45,7 @@
     [self waitForExpectations:@[self.mockReporter.reportScreenshotExpectation] timeout:1];
 }
 
+#if TARGET_OS_IPHONE
 - (void)testScreenshotIfNotStarted
 {
     self.mockReporter.reportScreenshotExpectation = [self expectationWithDescription:@"report screenshot"];
@@ -64,5 +65,6 @@
     
     [self waitForExpectations:@[self.mockReporter.reportScreenshotExpectation] timeout:1];
 }
+#endif
 
 @end

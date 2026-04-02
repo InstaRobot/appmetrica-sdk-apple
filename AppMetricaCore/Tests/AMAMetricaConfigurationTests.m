@@ -1,5 +1,7 @@
 
+#if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
+#endif
 #import <AppMetricaKiwi/AppMetricaKiwi.h>
 #import <AppMetricaTestUtils/AppMetricaTestUtils.h>
 #import <AppMetricaStorageUtils/AppMetricaStorageUtils.h>
@@ -14,6 +16,7 @@
 #import <AppMetricaKeychain/AppMetricaKeychain.h>
 #import "AMAAppGroupIdentifierProvider.h"
 @import AppMetricaIdentifiers;
+@import AppMetricaPlatform;
 
 @interface AMAMetricaConfiguration (TestExtension)
 - (AMAIdentifierProviderConfiguration*)createIdentifierProviderConfiguration;
@@ -66,6 +69,7 @@ describe(@"AMAMetricaConfiguration", ^{
         });
     });
 
+#if TARGET_OS_IPHONE
     context(@"With invalid identifier", ^{
         NSString *invalidIFV = @"invalidIdentifier";
 
@@ -80,6 +84,7 @@ describe(@"AMAMetricaConfiguration", ^{
             [[configuration.persistent.deviceID shouldNot] equal:invalidIFV];
         });
     });
+#endif
 
     context(@"Sets metrica started", ^{
         it(@"Should have metrica started initially NO", ^{

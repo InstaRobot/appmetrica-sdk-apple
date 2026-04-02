@@ -5,6 +5,11 @@
 #import "AMADeviceDescription.h"
 #import "AMAAppIdentifierProvider.h"
 #import "AMAJailbreakCheck.h"
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+#else
+#import <AppKit/AppKit.h>
+#endif
 
 SPEC_BEGIN(AMADeviceDescriptionTests)
 
@@ -12,10 +17,12 @@ describe(@"AMADeviceDescription", ^{
     
     context(@"Application", ^{
         
+#if TARGET_OS_IPHONE
         afterEach(^{
             [[UIDevice currentDevice] clearStubs];
             [[UIScreen mainScreen] clearStubs];
         });
+#endif
         
         it(@"Should return appIdentifierPrefix", ^{
             NSString *prefix = @"prefix";
@@ -32,6 +39,7 @@ describe(@"AMADeviceDescription", ^{
                 [AMAJailbreakCheck clearStubs];
             });
             
+#if TARGET_OS_IPHONE
             it(@"Should return device root status", ^{
                 NSUInteger rand = arc4random_uniform(2) + 1;
                 if (rand == 1) {
@@ -61,8 +69,14 @@ describe(@"AMADeviceDescription", ^{
                     [[theValue([AMADeviceDescription isDeviceRooted]) should] beNo];
                 }
             });
+#else
+            it(@"Should always return not rooted on macOS", ^{
+                [[theValue([AMADeviceDescription isDeviceRooted]) should] beNo];
+            });
+#endif
         });
         
+#if TARGET_OS_IPHONE
         it(@"Should return true if current device contains device model", ^{
             NSString *deviceModel = @"AC-130";
             [[UIDevice currentDevice] stub:@selector(model) andReturn:[NSString stringWithFormat:@"%@H", deviceModel]];
@@ -89,11 +103,28 @@ describe(@"AMADeviceDescription", ^{
             
             [[[AMADeviceDescription scalefactor] should] equal:@"30.00"];
         });
+#else
+        it(@"Should return non-empty screen width on macOS", ^{
+            [[[AMADeviceDescription screenWidth] shouldNot] beNil];
+            [[theValue([AMADeviceDescription screenWidth].length) should] beGreaterThan:theValue(0)];
+        });
+
+        it(@"Should return non-empty screen height on macOS", ^{
+            [[[AMADeviceDescription screenHeight] shouldNot] beNil];
+            [[theValue([AMADeviceDescription screenHeight].length) should] beGreaterThan:theValue(0)];
+        });
+
+        it(@"Should return non-empty scalefactor on macOS", ^{
+            [[[AMADeviceDescription scalefactor] shouldNot] beNil];
+            [[theValue([AMADeviceDescription scalefactor].length) should] beGreaterThan:theValue(0)];
+        });
+#endif
         
         it(@"Should return manufacturer", ^{
             [[[AMADeviceDescription manufacturer] should] equal:@"Apple"];
         });
         
+#if TARGET_OS_IPHONE
         it(@"Should return OSVersion", ^{
             NSString *version = @"5.7";
             [[UIDevice currentDevice] stub:@selector(systemVersion) andReturn:version];
@@ -114,6 +145,17 @@ describe(@"AMADeviceDescription", ^{
             
             [[[AMADeviceDescription appPlatform] should] equal:@"iphone"];
         });
+#else
+        it(@"Should return OSVersion on macOS", ^{
+            NSString *version = [AMADeviceDescription OSVersion];
+            [[version shouldNot] beNil];
+            [[theValue(version.length) should] beGreaterThan:theValue(0)];
+        });
+
+        it(@"Should return mac as appPlatform on macOS", ^{
+            [[[AMADeviceDescription appPlatform] should] equal:@"mac"];
+        });
+#endif
     });
 });
 

@@ -1,6 +1,6 @@
 #import "AMACore.h"
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 
 #import <AppMetricaStorageUtils/AppMetricaStorageUtils.h>
 #import <AppMetricaKeychain/AppMetricaKeychain.h>

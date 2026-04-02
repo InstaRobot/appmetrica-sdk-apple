@@ -18,6 +18,7 @@ NSString *const kAMADeviceTypeTV = @"tv";
 NSString *const kAMADeviceTypeTablet = @"tablet";
 NSString *const kAMADeviceTypePhone = @"phone";
 NSString *const kAMADeviceTypeWatch = @"watch";
+NSString *const kAMADeviceTypeDesktop = @"desktop";
 
 #ifndef AMA_BUILD_TYPE
     #define AMA_BUILD_TYPE "undefined"
@@ -174,8 +175,11 @@ NSString *const kAMADeviceTypeWatch = @"watch";
 
 + (NSString *)OSName
 {
-    // We use iOS OS name for all platforms (iOS, watchOs, tvOS)
+#if TARGET_OS_IPHONE || TARGET_OS_TV || TARGET_OS_WATCH
     return @"iOS";
+#else
+    return @"macOS";
+#endif
 }
 
 + (NSString *)OSVersion
@@ -247,8 +251,10 @@ NSString *const kAMADeviceTypeWatch = @"watch";
     return kAMADeviceTypeTV;
 #elif TARGET_OS_WATCH
     return kAMADeviceTypeWatch;
-#else
+#elif TARGET_OS_IPHONE
     return [AMADeviceDescription isDeviceModelOfType:@"ipad"] ? kAMADeviceTypeTablet : kAMADeviceTypePhone;
+#else
+    return kAMADeviceTypeDesktop;
 #endif
 }
 
