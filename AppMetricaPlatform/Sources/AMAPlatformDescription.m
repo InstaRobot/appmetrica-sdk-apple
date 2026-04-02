@@ -2,9 +2,6 @@
 #import <AppMetricaPlatform/AppMetricaPlatform.h>
 #import "AMAPlatformCore.h"
 #include <sys/sysctl.h>
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#endif
 #import "AMAAppVersionProvider.h"
 #import "AMADeviceDescription.h"
 #import "AMAEntitlementsExtractor.h"
@@ -178,14 +175,7 @@ NSString *const kAMADeviceTypeDesktop = @"desktop";
 
 + (NSString *)OSName
 {
-#if TARGET_OS_TV
-    return @"tvOS";
-#elif TARGET_OS_WATCH
-    return @"watchOS";
-#elif TARGET_OS_IPHONE
-    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
-        return @"iPadOS";
-    }
+#if TARGET_OS_IPHONE || TARGET_OS_TV || TARGET_OS_WATCH
     return @"iOS";
 #else
     return @"macOS";
