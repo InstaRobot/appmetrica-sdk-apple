@@ -203,6 +203,11 @@ static NSTimeInterval const kAMAReporterAnonymousActivationDelay = 10.0;
     
     [[AMAMetricaConfiguration sharedInstance].inMemory markAppMetricaStarted];
     [self logMetricaStart:configuration.APIKey];
+
+    if ([self.stateProvider hostState] == AMAHostAppStateForeground) {
+        AMALogInfo(@"App already in foreground at activation time, triggering start");
+        [self start];
+    }
 }
 
 - (void)scheduleAnonymousActivationIfNeeded
@@ -250,6 +255,11 @@ static NSTimeInterval const kAMAReporterAnonymousActivationDelay = 10.0;
     [[AMAMetricaConfiguration sharedInstance].inMemory markAppMetricaStartedAnonymously];
 
     [self logMetricaStart:nil];
+
+    if ([self.stateProvider hostState] == AMAHostAppStateForeground) {
+        AMALogInfo(@"App already in foreground at activation time, triggering start");
+        [self start];
+    }
 }
 
 - (void)activateReporterWithConfiguration:(AMAReporterConfiguration *)configuration
@@ -873,11 +883,13 @@ static NSTimeInterval const kAMAReporterAnonymousActivationDelay = 10.0;
 
 - (void)postSetupMainReporterWithStorage:(AMAReporterStorage *)reporterStorage
 {
+#if TARGET_OS_IPHONE
     if (@available(iOS 14.3, *)) {
         self.adServicesController = [[AMAAdServicesReportingController alloc] initWithApiKey:self.apiKey
                                                                         reporterStateStorage:reporterStorage.stateStorage];
         [self triggerASATokenReporting];
     }
+#endif
 }
 
 - (void)triggerSessionStartIfNeeded

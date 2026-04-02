@@ -61,7 +61,9 @@
             return @"iphone";
     }
 #else
-    return @"mac";
+    // AppMetrica backend doesn't recognize "mac" as a valid platform.
+    // Report as "iphone" so startup succeeds; device_type=desktop still distinguishes macOS in reports.
+    return @"iphone";
 #endif
 }
 
