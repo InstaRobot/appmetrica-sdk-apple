@@ -117,9 +117,11 @@ describe(@"AMAReporter", ^{
         reporterTestHelper = [[AMAReporterTestHelper alloc] init];
     });
     afterEach(^{
+        [reporterTestHelper destub];
+        reporterTestHelper = nil;
+
         [AMAMetricaConfigurationTestUtilities destubConfiguration];
         [AMAFailureDispatcherTestHelper destub];
-        [reporterTestHelper destub];
         [NSDate clearStubs];
         
         [AMAMetricaConfiguration clearStubs];

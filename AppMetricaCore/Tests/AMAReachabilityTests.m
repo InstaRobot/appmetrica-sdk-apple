@@ -76,6 +76,7 @@ describe(@"AMAReachabilityTests", ^{
     });
     context(@"Notifications", ^{
         it(@"Should notify if status changed", ^{
+            [AMAReachability amatest_stubSharedInstance];
             __block BOOL isNotificationsReceived = NO;
             [[NSNotificationCenter defaultCenter] addObserverForName:kAMAReachabilityStatusDidChange
                                                               object:nil
@@ -95,6 +96,7 @@ describe(@"AMAReachabilityTests", ^{
             [[theValue(isNotificationsReceived) should] equal:theValue(YES)];
         });
         it(@"Shouldn't notify for same status", ^{
+            [AMAReachability amatest_stubSharedInstance];
             __block BOOL isNotificationsReceived = NO;
 
             AMAReachability *reachability = [AMAReachability sharedInstance];
