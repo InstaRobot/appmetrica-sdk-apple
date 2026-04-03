@@ -111,8 +111,13 @@ describe(@"AMAKeychainTests", ^{
             });
             context(@"Deserialization error", ^{
                 beforeEach(^{
-                    NSArray *notAString = @[ @"foo" ];
-                    [keychain setStringValue:(id)notAString forKey:@"foo" error:nil];
+                    NSData *corruptData = [@"not_a_valid_archive" dataUsingEncoding:NSUTF8StringEncoding];
+                    NSDictionary *attrs = @{
+                        (__bridge id)kSecAttrService: @"io.appmetrica.keychaintestidentifier",
+                        (__bridge id)kSecAttrAccount: @"foo",
+                        (__bridge id)kSecValueData: corruptData
+                    };
+                    [bridge addEntryWithAttributes:attrs];
                 });
                 it(@"Should return nil in getter", ^{
                     [[[keychain stringValueForKey:@"foo" error:nil] should] beNil];

@@ -41,6 +41,8 @@ jobs:
           xcodebuild build -scheme "$SCHEME" -sdk iphonesimulator -destination "platform=iOS Simulator,name=$DEVICE,OS=$LATEST_IOS_VERSION" -derivedDataPath $DERIVED_DATA_PATH | xcpretty && exit ${PIPESTATUS[0]}
 
       - name: Test
+        env:
+          OS_ACTIVITY_MODE: disable
         run: |
           set -o pipefail
           xcodebuild test -scheme "$SCHEME" -sdk iphonesimulator -destination "platform=iOS Simulator,name=$DEVICE,OS=$LATEST_IOS_VERSION" -derivedDataPath $DERIVED_DATA_PATH -parallel-testing-enabled NO 2>&1 | tee "$RUNNER_TEMP/test-ios.log"
@@ -63,6 +65,8 @@ jobs:
           xcodebuild build -scheme "$SCHEME" -destination "platform=macOS" -derivedDataPath $DERIVED_DATA_PATH | xcpretty && exit ${PIPESTATUS[0]}
 
       - name: Test on macOS
+        env:
+          OS_ACTIVITY_MODE: disable
         run: |
           set -o pipefail
           xcodebuild test -scheme "$SCHEME" -destination "platform=macOS" -derivedDataPath $DERIVED_DATA_PATH -parallel-testing-enabled NO 2>&1 | tee "$RUNNER_TEMP/test-macos.log"
