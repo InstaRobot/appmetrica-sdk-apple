@@ -163,12 +163,13 @@ describe(@"AMAMetricaSessions", ^{
             it(@"Should not finish last session for manual reporters on application start", ^{
                 NSString *manualApiKey = @"550e8400-e29b-41d4-a716-446655440001";
                 AMAReporter *reporter = (AMAReporter *)[AMAAppMetrica reporterForAPIKey:manualApiKey];
-                [reporter.reporterStorage.sessionStorage newGeneralSessionCreatedAt:[NSDate date] error:nil];
+                AMASessionStorage *manualSessionStorage = reporter.reporterStorage.sessionStorage;
+                [manualSessionStorage newGeneralSessionCreatedAt:[NSDate date] error:nil];
 
                 start();
 
                 [reporter reportEvent:@"Event" onFailure:nil];
-                AMASession *savedSession = [sessionStorage amatest_sessionWithOid:@1];
+                AMASession *savedSession = [manualSessionStorage amatest_sessionWithOid:@1];
                 [[theValue(savedSession.isFinished) should] beNo];
             });
         });
