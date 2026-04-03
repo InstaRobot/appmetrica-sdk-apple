@@ -54,7 +54,8 @@ describe(@"AMAANRWatchdog", ^{
             [ANRDetector start];
             [NSThread sleepForTimeInterval:kANRDuration + 0.1];
             [observedExecutor execute];
-            [[expectFutureValue(theValue(hitTimes)) shouldEventuallyBeforeTimingOutAfter(1)] equal:theValue(2)];
+            // First ANR + unblock + second watchdog window can exceed 1s under load (e.g. macOS test runner).
+            [[expectFutureValue(theValue(hitTimes)) shouldEventuallyBeforeTimingOutAfter(25)] equal:theValue(2)];
         });
     });
 

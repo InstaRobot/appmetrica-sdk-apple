@@ -207,9 +207,10 @@
 {
     [self execute:^{
         [self.errorEnvironment addValue:value forKey:key];
-        [self.mainCrashReporter setErrorEnvironmentValue:value forKey:key];
-        [self updateCrashContextQuickly:YES];
-        
+        if (self.apiKey != nil) {
+            [self.mainCrashReporter setErrorEnvironmentValue:value forKey:key];
+            [self updateCrashContextQuickly:YES];
+        }
     }];
 }
 
@@ -217,9 +218,10 @@
 {
     [self execute:^{
         [self.errorEnvironment clearEnvironment];
-        [self.mainCrashReporter clearErrorEnvironment];
-        [self updateCrashContextQuickly:YES];
-        
+        if (self.apiKey != nil) {
+            [self.mainCrashReporter clearErrorEnvironment];
+            [self updateCrashContextQuickly:YES];
+        }
     }];
 }
 

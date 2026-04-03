@@ -55,8 +55,10 @@
 {
     AMAEventsCleanupInfo *cleanupInfo = [[AMAEventsCleanupInfo alloc] initWithReasonType:reasonType];
     NSMutableArray *events = [NSMutableArray array];
-    for (AMAReportEventsBatch *batch in eventBatches) {
-        for (AMAEvent *event in batch.events) {
+    NSArray<AMAReportEventsBatch *> *batchesSnapshot = [eventBatches copy];
+    for (AMAReportEventsBatch *batch in batchesSnapshot) {
+        NSArray<AMAEvent *> *batchEvents = [batch.events copy];
+        for (AMAEvent *event in batchEvents) {
             [event cleanup];
             if ([cleanupInfo addEvent:event]) {
                 [events addObject:event];

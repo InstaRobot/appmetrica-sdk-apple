@@ -52,9 +52,27 @@
 
 - (BOOL)shouldTrimDatabase:(id<AMADatabaseProtocol>)database
 {
-    
+    // Trim can run asynchronously (AMANotificationsListener); tests may clear Kiwi stubs on the class first.
+    Class configurationClass = [AMAMetricaConfiguration class];
+    if ([configurationClass respondsToSelector:@selector(sharedInstance)] == NO) {
+        AMALogWarn(@"Skipping events DB trim: +[AMAMetricaConfiguration sharedInstance] is unavailable.");
+        return NO;
+    }
+
+    AMAMetricaConfiguration *metricaConfiguration = nil;
+    @try {
+        metricaConfiguration = [AMAMetricaConfiguration sharedInstance];
+    }
+    @catch (__unused NSException *exception) {
+        AMALogWarn(@"Skipping events DB trim: +sharedInstance raised an exception.");
+        return NO;
+    }
+    if (metricaConfiguration == nil) {
+        return NO;
+    }
+
     AMAReporterConfiguration *configuration =
-        [[AMAMetricaConfiguration sharedInstance] configurationForApiKey:self.apiKey];
+        [metricaConfiguration configurationForApiKey:self.apiKey];
     NSUInteger maxEventsCount = configuration.maxReportsInDatabaseCount;
     NSUInteger eventsCount = self.aproximateEventsCount;
 

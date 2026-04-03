@@ -152,8 +152,8 @@ describe(@"AMADeviceDescription", ^{
             [[theValue(version.length) should] beGreaterThan:theValue(0)];
         });
 
-        it(@"Should return mac as appPlatform on macOS", ^{
-            [[[AMADeviceDescription appPlatform] should] equal:@"mac"];
+        it(@"Should return iphone as appPlatform on macOS for backend compatibility", ^{
+            [[[AMADeviceDescription appPlatform] should] equal:@"iphone"];
         });
 #endif
     });

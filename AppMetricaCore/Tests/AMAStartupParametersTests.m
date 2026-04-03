@@ -38,6 +38,8 @@ describe(@"AMAStartupParameters", ^{
 #if TARGET_OS_TV
         appPlatform = @"iphone";
         deviceType = @"tv";
+#elif !TARGET_OS_IPHONE
+        deviceType = @"desktop";
 #endif
 
         expectedParameters = [@{

@@ -3,7 +3,7 @@ name: Release (tag on main)
 on:
   push:
     tags:
-      - "v*"
+      - "*.*.*"
 
 permissions:
   contents: write
@@ -23,6 +23,18 @@ jobs:
           git fetch origin main
           if ! git merge-base --is-ancestor "${GITHUB_SHA}" origin/main; then
             echo "::error::Tag points to a commit that is not contained in main. Create the tag only from main (or merge first)."
+            exit 1
+          fi
+
+      - name: Validate tag name for SPM (semver without v prefix)
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          if [[ "$TAG" == v* ]]; then
+            echo "::error::Do not use a leading v in the tag (use 1.0.0, not v1.0.0) so SwiftPM resolves versions correctly."
+            exit 1
+          fi
+          if ! [[ "$TAG" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "::error::Tag must be MAJOR.MINOR.PATCH with digits only in each segment (e.g. 1.0.0)."
             exit 1
           fi
 
@@ -54,27 +66,65 @@ jobs:
 
       - name: Test
         run: |
-          xcodebuild test -scheme "$SCHEME" -sdk iphonesimulator -destination "platform=iOS Simulator,name=$DEVICE,OS=$LATEST_IOS_VERSION" -derivedDataPath $DERIVED_DATA_PATH | xcpretty && exit ${PIPESTATUS[0]}
+          xcodebuild test -scheme "$SCHEME" -sdk iphonesimulator -destination "platform=iOS Simulator,name=$DEVICE,OS=$LATEST_IOS_VERSION" -derivedDataPath $DERIVED_DATA_PATH -parallel-testing-enabled NO | xcpretty && exit ${PIPESTATUS[0]}
 
   build_macos:
-    name: macOS - Build
+    name: macOS - Build and Test
     needs: verify_on_main
     runs-on: macos-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Prepare Environment Variables
+        run: |
+          echo "SCHEME=AppMetrica-Package" >> $GITHUB_ENV
+          echo "DERIVED_DATA_PATH=$RUNNER_TEMP/DerivedData" >> $GITHUB_ENV
+
       - name: Build for macOS
         run: |
-          xcodebuild build -scheme "AppMetrica-Package" -destination "platform=macOS" | xcpretty && exit ${PIPESTATUS[0]}
+          xcodebuild build -scheme "$SCHEME" -destination "platform=macOS" -derivedDataPath $DERIVED_DATA_PATH | xcpretty && exit ${PIPESTATUS[0]}
+
+      - name: Test on macOS
+        run: |
+          xcodebuild test -scheme "$SCHEME" -destination "platform=macOS" -derivedDataPath $DERIVED_DATA_PATH -parallel-testing-enabled NO | xcpretty && exit ${PIPESTATUS[0]}
+
+  build_xcframeworks:
+    name: Build XCFrameworks (non-SPM)
+    needs: [build_and_test_ios, build_macos]
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build all product XCFrameworks
+        run: Scripts/build-xcframeworks.sh
+
+      - name: Zip XCFrameworks for release
+        run: |
+          cd "${{ github.workspace }}/build"
+          zip -ry "../AppMetrica-XCFrameworks-${{ github.ref_name }}.zip" xcframeworks
+
+      - name: Upload XCFramework bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcframeworks-zip
+          path: AppMetrica-XCFrameworks-${{ github.ref_name }}.zip
+          if-no-files-found: error
 
   publish_release:
     name: Publish GitHub Release
-    needs: [build_and_test_ios, build_macos]
+    needs: [build_and_test_ios, build_macos, build_xcframeworks]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Download XCFramework bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: xcframeworks-zip
+          path: release-assets
 
       - name: Create release
         uses: softprops/action-gh-release@v2
@@ -82,5 +132,8 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: ${{ github.ref_name }}
           generate_release_notes: true
+          body: |
+            **Binary XCFrameworks (Xcode, без SPM):** в архиве `AppMetrica-XCFrameworks-${{ github.ref_name }}.zip` — распакуй и подключай нужные `.xcframework` в проект (Embed & Sign при необходимости).
+          files: release-assets/AppMetrica-XCFrameworks-${{ github.ref_name }}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

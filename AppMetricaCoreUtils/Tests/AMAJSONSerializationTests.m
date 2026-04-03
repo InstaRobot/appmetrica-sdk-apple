@@ -24,8 +24,8 @@
 - (void)testStringWithJSONObject
 {
     NSString *valid = [AMAJSONSerialization stringWithJSONObject:self.dict error:nil];
-    
-    XCTAssertEqualObjects(valid, self.json, @"Should serialize dictionary to string");
+    NSDictionary *reparsed = [AMAJSONSerialization dictionaryWithJSONString:valid error:nil];
+    XCTAssertEqualObjects(reparsed, self.dict, @"Should serialize dictionary to equivalent JSON object");
     
     NSString *invalid = [AMAJSONSerialization stringWithJSONObject:nil error:nil];
     

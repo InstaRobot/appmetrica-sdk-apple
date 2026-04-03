@@ -23,6 +23,11 @@ describe(@"AMAKeyValueStorage", ^{
         converter = [KWMock nullMockForProtocol:@protocol(AMAKeyValueStorageConverting)];
         storage = [[AMAKeyValueStorage alloc] initWithDataProvider:provider converter:converter];
     });
+    afterEach(^{
+        [provider clearStubs];
+        [converter clearStubs];
+        storage = nil;
+    });
 
     context(@"String", ^{
         NSString *const value = @"VALUE";
@@ -207,7 +212,7 @@ describe(@"AMAKeyValueStorage", ^{
         context(@"Set", ^{
             it(@"Should convert value", ^{
                 [[converter should] receive:@selector(objectForUnsignedLongLong:)
-                              withArguments:theValue(value.longLongValue)];
+                              withArguments:theValue(value.unsignedLongLongValue)];
                 [storage saveUnsignedLongLongNumber:value forKey:key error:nil];
             });
             it(@"Should save to provider", ^{

@@ -11,6 +11,16 @@
 static NSString *const kAMALoadingCrashReportsTransactionKey = @"KSCrashLoadingReports";
 NSString *const kAMAApplicationNotRespondingCrashType = @"AMAApplicationNotRespondingCrashType";
 
+static id AMAKSCrashLoaderCrashContextSyncToken(void)
+{
+    static id token;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        token = [[NSObject alloc] init];
+    });
+    return token;
+}
+
 @interface AMAKSCrashLoader () <AMAKSCrashReportDecoderDelegate>
 
 @property (nonatomic, strong) NSMutableDictionary *decoders;
@@ -222,23 +232,34 @@ NSString *const kAMAApplicationNotRespondingCrashType = @"AMAApplicationNotRespo
         return;
     }
 
-    NSDictionary *existingContext = [self crashContext];
-    NSDictionary *newContext = nil;
+    @synchronized (AMAKSCrashLoaderCrashContextSyncToken()) {
+        NSDictionary *existingContext = KSCrash.sharedInstance.userInfo;
+        NSDictionary *newContext = nil;
 
-    if (existingContext != nil) {
-        NSMutableDictionary *currentContext = [existingContext mutableCopy];
-        [currentContext addEntriesFromDictionary:crashContext];
-        newContext = [currentContext copy];
-    } else {
-        newContext = [crashContext copy];
+        if (existingContext != nil) {
+            NSMutableDictionary *currentContext = [existingContext mutableCopy];
+            [currentContext addEntriesFromDictionary:crashContext];
+            newContext = [currentContext copy];
+        } else {
+            newContext = [crashContext copy];
+        }
+
+        KSCrash.sharedInstance.userInfo = newContext;
     }
-
-    KSCrash.sharedInstance.userInfo = newContext;
 }
 
 + (NSDictionary *)crashContext
 {
-    return KSCrash.sharedInstance.userInfo;
+    @synchronized (AMAKSCrashLoaderCrashContextSyncToken()) {
+        return KSCrash.sharedInstance.userInfo;
+    }
+}
+
++ (void)resetCrashContextStorageForTesting
+{
+    @synchronized (AMAKSCrashLoaderCrashContextSyncToken()) {
+        KSCrash.sharedInstance.userInfo = nil;
+    }
 }
 
 - (void)reportANR

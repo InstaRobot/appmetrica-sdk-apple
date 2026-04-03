@@ -20,15 +20,14 @@ describe(@"AMAStartupClientIdentifierFactory", ^{
     NSString *const testDeviceID = @"test-device-id";
     NSString *const testDeviceIDHash = @"test-device-id-hash";
     NSString *const testUUID = @"test-uuid";
+    NSString *const testIFVString = @"11111111-1111-1111-1111-111111111111";
 #if TARGET_OS_IPHONE
     __block NSUUID *testIFVUUID = nil;
-    __block NSString *testIFVString = nil;
     __block UIDevice *mockDevice = nil;
 #endif
     
     beforeAll(^{
 #if TARGET_OS_IPHONE
-        testIFVString = @"11111111-1111-1111-1111-111111111111";
         testIFVUUID = [[NSUUID alloc] initWithUUIDString:testIFVString];
 #endif
     });
@@ -51,6 +50,8 @@ describe(@"AMAStartupClientIdentifierFactory", ^{
         mockDevice = [KWMock mockForClass:[UIDevice class]];
         [UIDevice stub:@selector(currentDevice) andReturn:mockDevice];
         [mockDevice stub:@selector(identifierForVendor) andReturn:testIFVUUID];
+#else
+        [mockIdentifierProvider stub:@selector(deviceID) andReturn:testIFVString];
 #endif
     });
     afterEach(^{
@@ -66,11 +67,7 @@ describe(@"AMAStartupClientIdentifierFactory", ^{
             [[identifier.deviceID should] equal:testDeviceID];
             [[identifier.deviceIDHash should] equal:testDeviceIDHash];
             [[identifier.UUID should] equal:testUUID];
-#if TARGET_OS_IPHONE
             [[identifier.IFV should] equal:testIFVString];
-#else
-            [[identifier.IFV shouldNot] beNil];
-#endif
         });
     });
     

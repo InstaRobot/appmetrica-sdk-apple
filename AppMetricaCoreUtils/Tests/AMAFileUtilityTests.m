@@ -75,10 +75,6 @@ describe(@"AMAFileUtility", ^{
     });
 
     context(@"Skip backup flag", ^{
-        NSString *const excludeItemKey = @"com.apple.metadata:com_apple_backup_excludeItem";
-        NSData *const excludeItemData = [@"com.apple.MobileBackup" dataUsingEncoding:NSASCIIStringEncoding];
-        NSDictionary *const expectedExtendedAttributes = @{ excludeItemKey : excludeItemData };
-
         NSString *__block tempFilePath = nil;
         beforeEach(^{
             fileManager = nil;
@@ -94,27 +90,31 @@ describe(@"AMAFileUtility", ^{
         });
 
         it(@"Should not have attribute before", ^{
-            NSDictionary *attributes = [originalFileManager attributesOfItemAtPath:tempFilePath error:NULL];
-            NSDictionary *extendedAttributes = attributes[@"NSFileExtendedAttributes"];
-            
-            [[extendedAttributes[excludeItemKey] should] beNil];
+            NSURL *fileURL = [NSURL fileURLWithPath:tempFilePath];
+            NSNumber *excluded = nil;
+            [fileURL getResourceValue:&excluded forKey:NSURLIsExcludedFromBackupKey error:NULL];
+            if (excluded != nil) {
+                [[excluded should] equal:@NO];
+            }
         });
 
         it(@"Should have valid attribute", ^{
             [AMAFileUtility setSkipBackupAttributesOnPath:tempFilePath];
-            NSDictionary *attributes = [originalFileManager attributesOfItemAtPath:tempFilePath error:NULL];
-            NSDictionary *extendedAttributes = attributes[@"NSFileExtendedAttributes"];
-            
-            [[extendedAttributes[excludeItemKey] should] equal:excludeItemData];
+            NSURL *fileURL = [NSURL fileURLWithPath:tempFilePath];
+            NSNumber *excluded = nil;
+            [fileURL getResourceValue:&excluded forKey:NSURLIsExcludedFromBackupKey error:NULL];
+            [[excluded should] equal:@YES];
         });
         
         it(@"Should preserve attributes while writing files", ^{
             [AMAFileUtility setSkipBackupAttributesOnPath:tempFilePath];
-            NSDictionary *attributesBefore = [originalFileManager attributesOfItemAtPath:tempFilePath error:NULL];
+            NSURL *fileURL = [NSURL fileURLWithPath:tempFilePath];
+            NSNumber *excludedBefore = nil;
+            [fileURL getResourceValue:&excludedBefore forKey:NSURLIsExcludedFromBackupKey error:NULL];
             [AMAFileUtility writeString:@"Test" filePath:tempFilePath error:NULL];
-            NSDictionary *attributesAfter = [originalFileManager attributesOfItemAtPath:tempFilePath error:NULL];
-            
-            [[attributesBefore[@"NSFileExtendedAttributes"] should] equal:attributesAfter[@"NSFileExtendedAttributes"]];
+            NSNumber *excludedAfter = nil;
+            [fileURL getResourceValue:&excludedAfter forKey:NSURLIsExcludedFromBackupKey error:NULL];
+            [[excludedAfter should] equal:excludedBefore];
         });
     });
     

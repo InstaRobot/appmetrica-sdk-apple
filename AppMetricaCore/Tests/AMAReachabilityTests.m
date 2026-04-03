@@ -91,6 +91,7 @@ describe(@"AMAReachabilityTests", ^{
             reachability.flags = kSCNetworkReachabilityFlagsReachable;
 #endif
 
+            [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.2]];
             [[theValue(isNotificationsReceived) should] equal:theValue(YES)];
         });
         it(@"Shouldn't notify for same status", ^{
@@ -117,6 +118,7 @@ describe(@"AMAReachabilityTests", ^{
             reachability.flags = kSCNetworkReachabilityFlagsReachable;
 #endif
 
+            [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.05]];
             [[theValue(isNotificationsReceived) should] equal:theValue(NO)];
         });
     });

@@ -281,7 +281,11 @@ describe(@"AMAPlatformDescription", ^{
     
     context(@"OS", ^{
         it(@"Should return OS name", ^{
+#if TARGET_OS_IPHONE || TARGET_OS_TV || TARGET_OS_WATCH
             [[[AMAPlatformDescription OSName] should] equal:@"iOS"];
+#else
+            [[[AMAPlatformDescription OSName] should] equal:@"macOS"];
+#endif
         });
         
         it(@"Should return OS version", ^{
@@ -352,7 +356,7 @@ describe(@"AMAPlatformDescription", ^{
             
             [[[AMAPlatformDescription deviceType] should] equal:kAMADeviceTypeTV];
         });
-#else
+#elif TARGET_OS_IPHONE
         it(@"Should return tablet if device type is ipad", ^{
             [AMADeviceDescription stub:@selector(isDeviceModelOfType:) andReturn:theValue(YES) withArguments:@"ipad"];
             

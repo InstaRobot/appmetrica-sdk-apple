@@ -56,7 +56,7 @@ describe(@"AMALocationRequestParameters", ^{
             @"app_build_number": @"23",
             @"app_framework": @"FRAMEWORK",
             @"app_id": @"APP_ID",
-            @"app_platform": @"iOS",
+            @"app_platform": [AMAPlatformDescription OSName],
             @"app_version_name": @"APP_VERSION",
             @"device_type": @"DEVICE_TYPE",
             @"deviceid": @"DEVICE_ID",

@@ -33,17 +33,26 @@ jobs:
 
       - name: Test
         run: |
-          xcodebuild test -scheme "$SCHEME" -sdk iphonesimulator -destination "platform=iOS Simulator,name=$DEVICE,OS=$LATEST_IOS_VERSION" -derivedDataPath $DERIVED_DATA_PATH | xcpretty && exit ${PIPESTATUS[0]}
+          xcodebuild test -scheme "$SCHEME" -sdk iphonesimulator -destination "platform=iOS Simulator,name=$DEVICE,OS=$LATEST_IOS_VERSION" -derivedDataPath $DERIVED_DATA_PATH -parallel-testing-enabled NO | xcpretty && exit ${PIPESTATUS[0]}
 
   build_macos:
-    name: macOS - Build
+    name: macOS - Build and Test
     runs-on: macos-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Prepare Environment Variables
+        run: |
+          echo "SCHEME=AppMetrica-Package" >> $GITHUB_ENV
+          echo "DERIVED_DATA_PATH=$RUNNER_TEMP/DerivedData" >> $GITHUB_ENV
+
       - name: Build for macOS
         run: |
-          xcodebuild build -scheme "AppMetrica-Package" -destination "platform=macOS" | xcpretty && exit ${PIPESTATUS[0]}
+          xcodebuild build -scheme "$SCHEME" -destination "platform=macOS" -derivedDataPath $DERIVED_DATA_PATH | xcpretty && exit ${PIPESTATUS[0]}
+
+      - name: Test on macOS
+        run: |
+          xcodebuild test -scheme "$SCHEME" -destination "platform=macOS" -derivedDataPath $DERIVED_DATA_PATH -parallel-testing-enabled NO | xcpretty && exit ${PIPESTATUS[0]}
 

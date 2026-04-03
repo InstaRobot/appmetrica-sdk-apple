@@ -52,6 +52,9 @@ static AMAIdentifierProviderMock *identifierManagerMock;
     NSUUID *ifv = [[NSUUID alloc] initWithUUIDString:UUID];
     [deviceMock stub:@selector(identifierForVendor) andReturn:ifv];
     [UIDevice stub:@selector(currentDevice) andReturn:deviceMock];
+#else
+    AMAIdentifierProviderMock *mock = [self stubIdentifierProviderIfNeeded];
+    mock.mockDeviceID = UUID;
 #endif
 }
 
@@ -77,6 +80,10 @@ static AMAIdentifierProviderMock *identifierManagerMock;
 {
 #if TARGET_OS_IPHONE
     [UIDevice clearStubs];
+#else
+    if (identifierManagerMock != nil) {
+        identifierManagerMock.mockDeviceID = nil;
+    }
 #endif
 }
 

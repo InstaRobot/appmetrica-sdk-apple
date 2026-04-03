@@ -31,6 +31,9 @@ extern NSString *const kAMAApplicationNotRespondingCrashType;
 + (void)addCrashContext:(NSDictionary *)crashContext;
 + (NSDictionary *)crashContext;
 
+/// Clears merged crash context (`KSCrash` userInfo). Intended for unit test teardown; uses the same synchronization as `addCrashContext:`.
++ (void)resetCrashContextStorageForTesting;
+
 - (void)reportANR;
 
 @end

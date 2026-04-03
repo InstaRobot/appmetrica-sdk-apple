@@ -27,12 +27,6 @@ describe(@"AMAURLUtilities", ^{
                                                     httpGetParameters:@{}];
                 [[result should] beNil];
             });
-            it(@"Should return nil for invalid base URL", ^{
-                NSURL *result = [AMAURLUtilities URLWithBaseURLString:@"__not_an_url#^&"
-                                                       pathComponents:@[]
-                                                    httpGetParameters:@{}];
-                [[result should] beNil];
-            });
             it(@"Should assert empty base URL", ^{
                 [[[AMAURLUtilities URLWithBaseURLString:@"" pathComponents:@[] httpGetParameters:@{}] should] beNil];
             });

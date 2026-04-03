@@ -68,7 +68,9 @@ describe(@"AMACollectionUtilities", ^{
                 [keyValuePairs addObject:@[ key, value ]];
                 return YES;
             }];
-            [[keyValuePairs should] equal:@[ @[@"foo", @"bar"], @[@"bar", @"foo"] ]];
+            NSSet *pairs = [NSSet setWithArray:keyValuePairs];
+            NSSet *expected = [NSSet setWithArray:@[ @[@"foo", @"bar"], @[@"bar", @"foo"] ]];
+            [[pairs should] equal:expected];
         });
     });
 

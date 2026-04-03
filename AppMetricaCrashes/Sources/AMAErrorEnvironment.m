@@ -43,7 +43,8 @@ static NSInteger const kAMAErrorEnvironmentTotalLengthLimit = 4500;
     }
 
     __block NSUInteger totalLength = truncatedKey.length + truncatedValue.length;
-    [self.environment enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSString *value, BOOL *stop) {
+    NSDictionary *environmentSnapshot = [self.environment copy];
+    [environmentSnapshot enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSString *value, BOOL *stop) {
         if ([key isEqualToString:truncatedKey] == NO) {
             totalLength += key.length + value.length;
         }

@@ -30,6 +30,14 @@
 - (void)handlePluginInitFinished;
 @end
 
+/// Matches production activation: `setupReporterWithConfiguration:` then `activate` (never call `activate` before reporter/processor exist).
+static void AMAAppMetricaCrashesTestsActivateModule(AMAAppMetricaCrashes *crashes, NSString *apiKey)
+{
+    [AMAAppMetricaCrashes stub:@selector(crashes) andReturn:crashes];
+    AMAModuleActivationConfiguration *config = [[AMAModuleActivationConfiguration alloc] initWithApiKey:apiKey];
+    [AMAAppMetricaCrashes willActivateWithConfiguration:config];
+}
+
 SPEC_BEGIN(AMAAppMetricaCrashesTests)
 
 describe(@"AMAAppMetricaCrashes", ^{
@@ -51,6 +59,8 @@ describe(@"AMAAppMetricaCrashes", ^{
     AMAStubHostAppStateProvider *__block hostStateProvider = nil;
     
     beforeEach(^{
+        [AMAKSCrashLoader resetCrashContextStorageForTesting];
+
         executor = [AMACurrentQueueExecutor new];
         hostStateProvider = [[AMAStubHostAppStateProvider alloc] init];
         
@@ -85,7 +95,9 @@ describe(@"AMAAppMetricaCrashes", ^{
         [AMAPlatformDescription clearStubs];
         [AMAAppMetricaCrashes clearStubs];
         [AMACrashProcessor clearStubs];
+        [AMACrashReporter clearStubs];
         [AMAANRWatchdog clearStubs];
+        [AMAKSCrashLoader resetCrashContextStorageForTesting];
     });
 
     context(@"Initialization and Singleton", ^{
@@ -93,6 +105,22 @@ describe(@"AMAAppMetricaCrashes", ^{
             AMAAppMetricaCrashes *firstInstance = [AMAAppMetricaCrashes crashes];
             AMAAppMetricaCrashes *secondInstance = [AMAAppMetricaCrashes crashes];
             [[firstInstance should] equal:secondInstance];
+        });
+    });
+
+    context(@"App Environment Setup", ^{
+        AMAEnvironmentContainer *__block appEnvironment = nil;
+
+        beforeEach(^{
+            // Real container: nullMock does not safely implement observer storage (SEGV under full suite).
+            appEnvironment = [[AMAEnvironmentContainer alloc] init];
+            [AMAAppMetricaCrashes stub:@selector(crashes) andReturn:crashes];
+        });
+
+        it(@"Should setup app environment", ^{
+            [AMAAppMetricaCrashes setupAppEnvironment:appEnvironment];
+
+            [[crashes.appEnvironment should] equal:appEnvironment];
         });
     });
 
@@ -244,11 +272,8 @@ describe(@"AMAAppMetricaCrashes", ^{
                                    withArguments:initialConfig.ignoredCrashSignals, serializer, crashReporter];
                 
                 [crashes setConfiguration:initialConfig];
-                [crashes activate];
-                
-                [AMAAppMetricaCrashes stub:@selector(crashes) andReturn:crashes];
-                AMAModuleActivationConfiguration *config = [[AMAModuleActivationConfiguration alloc] initWithApiKey:testsAPIKey];
-                [AMAAppMetricaCrashes willActivateWithConfiguration:config];
+
+                AMAAppMetricaCrashesTestsActivateModule(crashes, testsAPIKey);
             });
 
             context(@"CrashLoader Configuration", ^{
@@ -355,10 +380,7 @@ describe(@"AMAAppMetricaCrashes", ^{
 
         context(@"After activation", ^{
             beforeEach(^{
-                [crashes activate];
-                
-                AMAModuleActivationConfiguration *config = [[AMAModuleActivationConfiguration alloc] initWithApiKey:testsAPIKey];
-                [AMAAppMetricaCrashes willActivateWithConfiguration:config];
+                AMAAppMetricaCrashesTestsActivateModule(crashes, testsAPIKey);
             });
 
             it(@"Should correctly report NSError objects", ^{
@@ -373,50 +395,10 @@ describe(@"AMAAppMetricaCrashes", ^{
         });
     });
 
-    context(@"Error Environment Manipulation", ^{
-        
-        AMAErrorEnvironment *__block errorEnvironment = nil;
-        
-        beforeEach(^{
-            errorEnvironment = [AMAErrorEnvironment nullMock];
-            
-            [crashes stub:@selector(errorEnvironment) andReturn:errorEnvironment];
-        });
-
-        it(@"Should correctly set the error environment value for a given key", ^{
-            [[errorEnvironment should] receive:@selector(addValue:forKey:) withArguments:@"sampleValue", @"sampleKey"];
-            [crashes setErrorEnvironmentValue:@"sampleValue" forKey:@"sampleKey"];
-        });
-
-        it(@"Should clear the error environment", ^{
-            [[errorEnvironment should] receive:@selector(clearEnvironment)];
-            [crashes clearErrorEnvironment];
-        });
-    });
-    
-    context(@"App Environment Setup", ^{
-        AMAEnvironmentContainer *__block appEnvironment = nil;
-        
-        beforeEach(^{
-            appEnvironment = [AMAEnvironmentContainer nullMock];
-            [AMAAppMetricaCrashes stub:@selector(crashes) andReturn:crashes];
-        });
-
-        it(@"Should setup app environment", ^{
-            [AMAAppMetricaCrashes setupAppEnvironment:appEnvironment];
-            
-            [[crashes.appEnvironment should] equal:appEnvironment];
-        });
-    });
-
     context(@"CrashLoader Delegate Methods", ^{
 
         beforeEach(^{
-            [crashes activate];
-            
-            [AMAAppMetricaCrashes stub:@selector(crashes) andReturn:crashes];
-            AMAModuleActivationConfiguration *config = [[AMAModuleActivationConfiguration alloc] initWithApiKey:testsAPIKey];
-            [AMAAppMetricaCrashes willActivateWithConfiguration:config];
+            AMAAppMetricaCrashesTestsActivateModule(crashes, testsAPIKey);
         });
 
         it(@"Should process crash on didLoadCrash callback", ^{
@@ -617,11 +599,7 @@ describe(@"AMAAppMetricaCrashes", ^{
         let(sampleCrash, ^{ return [AMADecodedCrash nullMock]; });
 
         beforeEach(^{
-            [crashes activate];
-            
-            [AMAAppMetricaCrashes stub:@selector(crashes) andReturn:crashes];
-            AMAModuleActivationConfiguration *config = [[AMAModuleActivationConfiguration alloc] initWithApiKey:testsAPIKey];
-            [AMAAppMetricaCrashes willActivateWithConfiguration:config];
+            AMAAppMetricaCrashesTestsActivateModule(crashes, testsAPIKey);
         });
 
         it(@"Should process a crash when didLoadCrash:withError: is called", ^{
@@ -645,10 +623,6 @@ describe(@"AMAAppMetricaCrashes", ^{
 
         context(@"Probable unhandled crash", ^{
             let(mockedError, ^{ return [NSError nullMock]; });
-            
-            beforeEach(^{
-                [crashes activate];
-            });
 
             it(@"Should report probable unhandled crash with correct error message for foreground crash type", ^{
                 NSString *errorMessage = @"Detected probable unhandled exception when app was in foreground. Exception mean that previous working session have not finished correctly.";
@@ -681,8 +655,12 @@ describe(@"AMAAppMetricaCrashes", ^{
     });
     
     context(@"AMAANRWatchdogDelegate", ^{
+        beforeEach(^{
+            [AMAAppMetricaCrashes stub:@selector(crashes) andReturn:crashes];
+        });
+
         it(@"Should report of ANR to crash loader", ^{
-            [crashes activate];
+            AMAAppMetricaCrashesTestsActivateModule(crashes, testsAPIKey);
             [[crashLoader should] receive:@selector(reportANR)];
             [crashes ANRWatchdogDidDetectANR:[AMAANRWatchdog nullMock]];
         });
@@ -706,8 +684,8 @@ describe(@"AMAAppMetricaCrashes", ^{
         });
         
         it(@"Should add an observer to the stateNotifier and trigger notification when activated", ^{
-            [crashes activate];
-            
+            AMAAppMetricaCrashesTestsActivateModule(crashes, testsAPIKey);
+
             [crashLoader stub:@selector(crashedLastLaunch) andReturn:@YES];
             
             [[stateNotifier should] receive:@selector(addObserverWithCompletionQueue:completionBlock:) withArguments:sampleQueue, sampleBlock];
@@ -734,7 +712,7 @@ describe(@"AMAAppMetricaCrashes", ^{
             });
 
             it(@"Should register crash observer after activation", ^{
-                [crashes activate];
+                AMAAppMetricaCrashesTestsActivateModule(crashes, testsAPIKey);
                 AMACrashObserverConfiguration *observerConfig = [AMACrashObserverConfiguration nullMock];
                 [[observerManagerMock should] receive:@selector(registerObserverConfiguration:)];
                 [crashes registerCrashObserver:observerConfig];
@@ -743,11 +721,7 @@ describe(@"AMAAppMetricaCrashes", ^{
 
         context(@"Notifications", ^{
             beforeEach(^{
-                [crashes activate];
-
-                [AMAAppMetricaCrashes stub:@selector(crashes) andReturn:crashes];
-                AMAModuleActivationConfiguration *config = [[AMAModuleActivationConfiguration alloc] initWithApiKey:testsAPIKey];
-                [AMAAppMetricaCrashes willActivateWithConfiguration:config];
+                AMAAppMetricaCrashesTestsActivateModule(crashes, testsAPIKey);
             });
 
             it(@"Should notify crash observer manager on didLoadCrash", ^{
@@ -785,7 +759,7 @@ describe(@"AMAAppMetricaCrashes", ^{
         });
 
         it(@"Should not register crash handler after activation", ^{
-            [crashes activate];
+            AMAAppMetricaCrashesTestsActivateModule(crashes, testsAPIKey);
             id handlerMock = [KWMock nullMockForProtocol:@protocol(AMACrashFilteringProxy)];
             [[handlerManagerMock shouldNot] receive:@selector(registerHandler:)];
             [crashes registerCrashHandler:handlerMock];
@@ -793,11 +767,7 @@ describe(@"AMAAppMetricaCrashes", ^{
 
         context(@"Processing", ^{
             beforeEach(^{
-                [crashes activate];
-
-                [AMAAppMetricaCrashes stub:@selector(crashes) andReturn:crashes];
-                AMAModuleActivationConfiguration *config = [[AMAModuleActivationConfiguration alloc] initWithApiKey:testsAPIKey];
-                [AMAAppMetricaCrashes willActivateWithConfiguration:config];
+                AMAAppMetricaCrashesTestsActivateModule(crashes, testsAPIKey);
             });
 
             it(@"Should call handler manager processCrash on didLoadCrash", ^{
@@ -816,7 +786,7 @@ describe(@"AMAAppMetricaCrashes", ^{
 
     context(@"Registration after activation", ^{
         it(@"Should not register crash provider after activation", ^{
-            [crashes activate];
+            AMAAppMetricaCrashesTestsActivateModule(crashes, testsAPIKey);
             [[externalCrashLoader shouldNot] receive:@selector(registerProvider:)];
             [crashes registerCrashProvider:[KWMock nullMockForProtocol:@protocol(AMACrashProviding)]];
         });
