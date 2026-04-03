@@ -114,7 +114,8 @@ describe(@"AMAFallbackKeychainTests", ^{
             context(@"Error", ^{
                 it(@"Should not fill entries in DB", ^{
                     [storage stub:@selector(stringForKey:error:) withBlock:^id(NSArray *params) {
-                        [AMATestUtilities fillObjectPointerParameter:params[1] withValue:[NSError new]];
+                        NSError *err = [NSError errorWithDomain:@"test" code:1 userInfo:nil];
+                        [AMATestUtilities fillObjectPointerParameter:params[1] withValue:err];
                         return nil;
                     }];
                     [[storage shouldNot] receive:@selector(saveString:forKey:error:)];
@@ -122,7 +123,8 @@ describe(@"AMAFallbackKeychainTests", ^{
                 });
                 it(@"Should not fill entries in fallback keychain", ^{
                     [fallbackKeychain stub:@selector(stringValueForKey:error:) withBlock:^id(NSArray *params) {
-                        [AMATestUtilities fillObjectPointerParameter:params[1] withValue:[NSError new]];
+                        NSError *err = [NSError errorWithDomain:@"test" code:1 userInfo:nil];
+                        [AMATestUtilities fillObjectPointerParameter:params[1] withValue:err];
                         return nil;
                     }];
                     [keychain stringValueForKey:key error:nil];
@@ -147,7 +149,8 @@ describe(@"AMAFallbackKeychainTests", ^{
             context(@"Error", ^{
                 it(@"Should not fill entries in main keychain", ^{
                     [mainKeychain stub:@selector(stringValueForKey:error:) withBlock:^id(NSArray *params) {
-                        [AMATestUtilities fillObjectPointerParameter:params[1] withValue:[NSError new]];
+                        NSError *err = [NSError errorWithDomain:@"test" code:1 userInfo:nil];
+                        [AMATestUtilities fillObjectPointerParameter:params[1] withValue:err];
                         return nil;
                     }];
                     [keychain stringValueForKey:key error:nil];

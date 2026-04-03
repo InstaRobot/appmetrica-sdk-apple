@@ -71,6 +71,7 @@ describe(@"AMADiskFileStorage", ^{
                 storage = [[AMADiskFileStorage alloc] initWithPath:path
                                                            options:AMADiskFileStorageOptionNoBackup];
                 [AMAFileUtility stub:@selector(rawContentAtFilePath:error:) andReturn:fileData];
+                [AMAFileUtility stub:@selector(setSkipBackupAttributesOnPath:) andReturn:theValue(YES)];
             });
             it(@"Should return data", ^{
                 [[[storage readDataWithError:NULL] should] equal:fileData];
@@ -145,6 +146,7 @@ describe(@"AMADiskFileStorage", ^{
                 storage = [[AMADiskFileStorage alloc] initWithPath:path
                                                            options:AMADiskFileStorageOptionNoBackup];
                 [AMAFileUtility stub:@selector(writeData:filePath:error:) andReturn:theValue(YES)];
+                [AMAFileUtility stub:@selector(setSkipBackupAttributesOnPath:) andReturn:theValue(YES)];
             });
             it(@"Should return YES", ^{
                 [[theValue([storage writeData:fileData error:NULL]) should] beYes];
@@ -173,6 +175,7 @@ describe(@"AMADiskFileStorage", ^{
                 storage = [[AMADiskFileStorage alloc] initWithPath:path
                                                            options:AMADiskFileStorageOptionCreateDirectory];
                 [AMAFileUtility stub:@selector(writeData:filePath:error:) andReturn:theValue(YES)];
+                [AMAFileUtility stub:@selector(createPathIfNeeded:) andReturn:theValue(YES)];
             });
             it(@"Should return YES", ^{
                 [[theValue([storage writeData:fileData error:NULL]) should] beYes];
@@ -202,6 +205,8 @@ describe(@"AMADiskFileStorage", ^{
                     AMADiskFileStorageOptionCreateDirectory | AMADiskFileStorageOptionNoBackup;
                 storage = [[AMADiskFileStorage alloc] initWithPath:path options:options];
                 [AMAFileUtility stub:@selector(writeData:filePath:error:) andReturn:theValue(YES)];
+                [AMAFileUtility stub:@selector(createPathIfNeeded:) andReturn:theValue(YES)];
+                [AMAFileUtility stub:@selector(setSkipBackupAttributesOnPath:) andReturn:theValue(YES)];
             });
             it(@"Should create directory", ^{
                 [[AMAFileUtility should] receive:@selector(createPathIfNeeded:) withArguments:@"/path/to"];
