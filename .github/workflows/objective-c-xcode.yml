@@ -45,7 +45,7 @@ jobs:
           OS_ACTIVITY_MODE: disable
         run: |
           set -o pipefail
-          xcodebuild test -scheme "$SCHEME" -sdk iphonesimulator -destination "platform=iOS Simulator,name=$DEVICE,OS=$LATEST_IOS_VERSION" -derivedDataPath $DERIVED_DATA_PATH -parallel-testing-enabled NO 2>&1 | tee "$RUNNER_TEMP/test-ios.log"
+          xcodebuild test -scheme "$SCHEME" -sdk iphonesimulator -destination "platform=iOS Simulator,name=$DEVICE,OS=$LATEST_IOS_VERSION" -derivedDataPath $DERIVED_DATA_PATH -parallel-testing-enabled NO -test-timeouts-enabled YES -default-test-execution-time-allowance 60 2>&1 | tee "$RUNNER_TEMP/test-ios.log"
 
   build_macos:
     name: macOS - Build and Test
@@ -60,6 +60,14 @@ jobs:
           echo "SCHEME=AppMetrica-Package" >> $GITHUB_ENV
           echo "DERIVED_DATA_PATH=$RUNNER_TEMP/DerivedData" >> $GITHUB_ENV
 
+      - name: Setup Keychain
+        run: |
+          security create-keychain -p "" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "" build.keychain
+          security set-keychain-settings -t 3600 -u build.keychain
+          security list-keychains -d user -s build.keychain login.keychain-db
+
       - name: Build for macOS
         run: |
           xcodebuild build -scheme "$SCHEME" -destination "platform=macOS" -derivedDataPath $DERIVED_DATA_PATH | xcpretty && exit ${PIPESTATUS[0]}
@@ -69,5 +77,5 @@ jobs:
           OS_ACTIVITY_MODE: disable
         run: |
           set -o pipefail
-          xcodebuild test -scheme "$SCHEME" -destination "platform=macOS" -derivedDataPath $DERIVED_DATA_PATH -parallel-testing-enabled NO 2>&1 | tee "$RUNNER_TEMP/test-macos.log"
+          xcodebuild test -scheme "$SCHEME" -destination "platform=macOS" -derivedDataPath $DERIVED_DATA_PATH -parallel-testing-enabled NO -test-timeouts-enabled YES -default-test-execution-time-allowance 60 2>&1 | tee "$RUNNER_TEMP/test-macos.log"
 

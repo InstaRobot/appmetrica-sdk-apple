@@ -45,6 +45,7 @@ describe(@"AMAIDSyncManager", ^{
     });
     
     afterEach(^{
+        [manager shutdown];
         [AMAIDSyncStartupConfiguration clearStubs];
     });
 
