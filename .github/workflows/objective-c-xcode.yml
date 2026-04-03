@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Prepare Environment Variables
         run: |
@@ -21,9 +21,9 @@ jobs:
       - name: Select Simulator and OS
         run: |
           LATEST_IOS_VERSION=$(xcrun simctl list runtimes -j | ruby -e 'require "json"; d=JSON.parse(STDIN.read); r=(d["runtimes"]||[]).select{|x| x["platform"]=="iOS"&&x["isAvailable"]}.map{|x| x["version"]}.sort; if r.empty?; warn "::error::No available iOS simulator runtime (simctl list runtimes). Install or enable an iOS runtime on the runner."; exit 1; end; puts r.last')
-          DEVICE=$(xcrun simctl list devices available "iOS" -j | ruby -e 'require "json"; d=JSON.parse(STDIN.read); dev=((d["devices"]||{}).values.flatten.select{|x| x["isAvailable"]&&x["name"].to_s.include?("iPhone")}); if dev.empty?; warn "::error::No available iPhone simulator (simctl list devices available iOS)."; exit 1; end; puts dev.last["name"]')
-          echo Selected simulator: $DEVICE
-          echo Selected OS: $LATEST_IOS_VERSION
+          DEVICE=$(xcrun simctl list devices available -j | ruby -e 'require "json"; v=ARGV[0].gsub(".","-"); d=JSON.parse(STDIN.read); k=d["devices"].keys.find{|k| k.include?("iOS-#{v}")}; abort "::error::No iOS #{ARGV[0]} runtime found" if k.nil?; dev=d["devices"][k].select{|x| x["isAvailable"]&&x["name"].include?("iPhone")}; abort "::error::No iPhone simulator for iOS #{ARGV[0]}" if dev.empty?; puts dev.first["name"]' "$LATEST_IOS_VERSION")
+          echo "Selected simulator: $DEVICE"
+          echo "Selected OS: $LATEST_IOS_VERSION"
           echo "DEVICE=$DEVICE" >> $GITHUB_ENV
           echo "LATEST_IOS_VERSION=$LATEST_IOS_VERSION" >> $GITHUB_ENV
 
@@ -33,7 +33,8 @@ jobs:
 
       - name: Test
         run: |
-          xcodebuild test -scheme "$SCHEME" -sdk iphonesimulator -destination "platform=iOS Simulator,name=$DEVICE,OS=$LATEST_IOS_VERSION" -derivedDataPath $DERIVED_DATA_PATH -parallel-testing-enabled NO | xcpretty && exit ${PIPESTATUS[0]}
+          set -o pipefail
+          xcodebuild test -scheme "$SCHEME" -sdk iphonesimulator -destination "platform=iOS Simulator,name=$DEVICE,OS=$LATEST_IOS_VERSION" -derivedDataPath $DERIVED_DATA_PATH -parallel-testing-enabled NO 2>&1 | tee "$RUNNER_TEMP/test-ios.log" | tail -200
 
   build_macos:
     name: macOS - Build and Test
@@ -41,7 +42,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Prepare Environment Variables
         run: |
@@ -54,5 +55,6 @@ jobs:
 
       - name: Test on macOS
         run: |
-          xcodebuild test -scheme "$SCHEME" -destination "platform=macOS" -derivedDataPath $DERIVED_DATA_PATH -parallel-testing-enabled NO | xcpretty && exit ${PIPESTATUS[0]}
+          set -o pipefail
+          xcodebuild test -scheme "$SCHEME" -destination "platform=macOS" -derivedDataPath $DERIVED_DATA_PATH -parallel-testing-enabled NO 2>&1 | tee "$RUNNER_TEMP/test-macos.log" | tail -200
 
