@@ -7,7 +7,7 @@ on:
 jobs:
   build_and_test_ios:
     name: iOS - Build and Test
-    runs-on: macos-latest
+    runs-on: macos-26
 
     steps:
       - name: Checkout
@@ -37,7 +37,7 @@ jobs:
 
   build_macos:
     name: macOS - Build and Test
-    runs-on: macos-latest
+    runs-on: macos-26
 
     steps:
       - name: Checkout

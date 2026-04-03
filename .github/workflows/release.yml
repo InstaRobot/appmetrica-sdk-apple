@@ -41,7 +41,7 @@ jobs:
   build_and_test_ios:
     name: iOS - Build and Test
     needs: verify_on_main
-    runs-on: macos-latest
+    runs-on: macos-26
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -71,7 +71,7 @@ jobs:
   build_macos:
     name: macOS - Build and Test
     needs: verify_on_main
-    runs-on: macos-latest
+    runs-on: macos-26
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -92,7 +92,7 @@ jobs:
   build_xcframeworks:
     name: Build XCFrameworks (non-SPM)
     needs: [build_and_test_ios, build_macos]
-    runs-on: macos-latest
+    runs-on: macos-26
     steps:
       - name: Checkout
         uses: actions/checkout@v4
