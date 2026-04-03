@@ -59,9 +59,11 @@ describe(@"AMAReportRequestTests", ^{
         [AMAPlatformDescription stub:@selector(currentAppInfo) andReturn:extensionMock];
     });
     afterEach(^{
+        [reporterTestHelper destub];
+        reporterTestHelper = nil;
+        
         [AMAMetricaConfigurationTestUtilities destubConfiguration];
         [AMAPlatformDescription clearStubs];
-        [reporterTestHelper destub];
         [AMAReportPayloadEncoderFactory clearStubs];
         
         [AMALocationManager clearStubs];
@@ -412,6 +414,10 @@ describe(@"AMAReportRequestTests", ^{
                             reportEvent(YES);
                         });
                     });
+                    afterEach(^{
+                        free(message);
+                        message = NULL;
+                    });
 
                     it(@"Should truncate big event value", ^{
                         Ama__ReportMessage__Session *session = message->sessions[0];
@@ -439,6 +445,10 @@ describe(@"AMAReportRequestTests", ^{
                         generatePayloadWithBlock(^{
                             reportEvent(NO);
                         });
+                    });
+                    afterEach(^{
+                        free(message);
+                        message = NULL;
                     });
 
                     it(@"Should truncate big event value", ^{

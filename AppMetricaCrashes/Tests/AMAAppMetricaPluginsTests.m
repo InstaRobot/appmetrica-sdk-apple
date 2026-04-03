@@ -21,6 +21,10 @@ describe(@"AMAAppMetricaPluginsImpl", ^{
             resultError = error;
         };
     });
+    afterEach(^{
+        [pluginsImpl setupCrashReporter:nil];
+        [pluginReporter clearStubs];
+    });
 
     context(@"Report unhandled exception", ^{
         it(@"Should not report if not configured", ^{
