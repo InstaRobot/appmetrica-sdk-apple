@@ -61,8 +61,9 @@
 - (void)checkNoBackupFlag
 {
     if ((self.options & AMADiskFileStorageOptionNoBackup) != 0 && self.noBackupAttibuteEnsured == NO) {
-        [AMAFileUtility setSkipBackupAttributesOnPath:self.path];
-        self.noBackupAttibuteEnsured = YES;
+        if ([AMAFileUtility setSkipBackupAttributesOnPath:self.path]) {
+            self.noBackupAttibuteEnsured = YES;
+        }
     }
 }
 

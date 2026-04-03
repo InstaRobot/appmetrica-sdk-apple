@@ -123,6 +123,9 @@ static NSString *const kAMAFilePath = @"io.appmetrica";
 
 + (BOOL)setSkipBackupAttributesOnPath:(NSString *)path
 {
+    if (path.length == 0 || [[NSFileManager defaultManager] fileExistsAtPath:path] == NO) {
+        return NO;
+    }
     NSError *error = nil;
     BOOL result = [[NSURL fileURLWithPath:path] setResourceValue:@YES
                                                           forKey:NSURLIsExcludedFromBackupKey
