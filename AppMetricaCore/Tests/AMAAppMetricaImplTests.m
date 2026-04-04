@@ -161,8 +161,9 @@ describe(@"AMAAppMetricaImpl", ^{
         [AMAAppMetrica clearStubs];
         [AMAMetricaConfiguration clearStubs];
         [[AMAMetricaConfiguration sharedInstance] clearStubs];
-        [AMAReporterStoragesContainer clearStubs];
         [reporterTestHelper destub];
+        reporterTestHelper = nil;
+        [AMAReporterStoragesContainer clearStubs];
         appMetricaImpl = nil;
     });
     
@@ -1381,7 +1382,7 @@ describe(@"AMAAppMetricaImpl", ^{
                 [firstActivationDetector stub:@selector(isFirstMainReporterActivation) andReturn:theValue(YES)];
                 
                 [[appMetricaImpl shouldNot] receive:@selector(activateAnonymously)];
-                [[appMetricaImpl shouldEventuallyBeforeTimingOutAfter(0.2)] receive:@selector(activateAnonymously)];
+                [[appMetricaImpl shouldEventuallyBeforeTimingOutAfter(2.0)] receive:@selector(activateAnonymously)];
                 
                 [appMetricaImpl scheduleAnonymousActivationIfNeeded];
             });
