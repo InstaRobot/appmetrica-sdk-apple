@@ -1,5 +1,6 @@
 
 #import <AppMetricaKiwi/AppMetricaKiwi.h>
+#import <AppMetricaCoreUtils/AppMetricaCoreUtils.h>
 #import "AMAAppMetricaPluginsImpl.h"
 
 SPEC_BEGIN(AMAAppMetricaPluginsImplTests)
@@ -13,6 +14,14 @@ describe(@"AMAAppMetricaPluginsImpl", ^{
     void __block (^onFailure)(NSError *) = nil;
 
     beforeEach(^{
+        [AMAFailureDispatcher stub:@selector(dispatchError:withBlock:) withBlock:^id(NSArray *params) {
+            NSError *error = params[0];
+            void (^block)(NSError *) = params[1];
+            if (block != nil && error != nil) {
+                block(error);
+            }
+            return nil;
+        }];
         pluginsImpl = [[AMAAppMetricaPluginsImpl alloc] init];
         resultError = nil;
         errorDetails = [AMAPluginErrorDetails nullMock];
@@ -23,13 +32,16 @@ describe(@"AMAAppMetricaPluginsImpl", ^{
     });
     afterEach(^{
         [pluginsImpl setupCrashReporter:nil];
+        pluginsImpl = nil;
         [pluginReporter clearStubs];
+        pluginReporter = nil;
+        [AMAFailureDispatcher clearStubs];
     });
 
     context(@"Report unhandled exception", ^{
         it(@"Should not report if not configured", ^{
             [pluginsImpl reportUnhandledException:errorDetails onFailure:onFailure];
-            [[resultError shouldNotEventually] beNil];
+            [[resultError shouldNot] beNil];
         });
         it(@"Should report if configured", ^{
             [pluginsImpl setupCrashReporter:pluginReporter];
@@ -45,7 +57,7 @@ describe(@"AMAAppMetricaPluginsImpl", ^{
         NSString *message = @"some message";
         it(@"Should not report if not configured", ^{;
             [pluginsImpl reportError:errorDetails message:message onFailure:onFailure];
-            [[resultError shouldNotEventually] beNil];
+            [[resultError shouldNot] beNil];
         });
         it(@"Should report if configured", ^{
             [pluginsImpl setupCrashReporter:pluginReporter];
@@ -65,7 +77,7 @@ describe(@"AMAAppMetricaPluginsImpl", ^{
                                            message:message
                                            details:errorDetails
                                          onFailure:onFailure];
-            [[resultError shouldNotEventually] beNil];
+            [[resultError shouldNot] beNil];
         });
         it(@"Should report if configured", ^{
             [pluginsImpl setupCrashReporter:pluginReporter];
