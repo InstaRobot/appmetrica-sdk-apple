@@ -31,7 +31,7 @@ describe(@"AMASessionsCleaner", ^{
     AMASessionsCleaner *__block cleaner = nil;
 
     beforeEach(^{
-        [AMAMetricaConfigurationTestUtilities stubConfigurationWithNullMock];
+        [AMAMetricaConfigurationTestUtilities stubConfiguration];
 
         reporterTestHelper = [[AMAReporterTestHelper alloc] init];
 
