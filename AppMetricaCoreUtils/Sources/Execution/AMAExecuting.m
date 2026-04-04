@@ -43,7 +43,12 @@
     AMALogBacktrace(@"Async execution on queue: %@", self.queue);
     dispatch_async(self.queue, ^{
         @autoreleasepool {
-            block();
+            @try {
+                block();
+            }
+            @catch (NSException *exception) {
+                AMALogError(@"Async block raised: %@", exception);
+            }
         }
     });
 }
@@ -71,7 +76,12 @@
     AMALogBacktrace(@"Delayed (%.2f) async execution on queue: %@", delay, self.queue);
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), [self queue], ^{
         @autoreleasepool {
-            block();
+            @try {
+                block();
+            }
+            @catch (NSException *exception) {
+                AMALogError(@"Delayed async block raised: %@", exception);
+            }
         }
     });
 }
@@ -118,7 +128,12 @@
             }
             if (block != nil) {
                 @autoreleasepool {
-                    block();
+                    @try {
+                        block();
+                    }
+                    @catch (NSException *exception) {
+                        AMALogError(@"Cancelable delayed block raised: %@", exception);
+                    }
                 }
             }
         }
