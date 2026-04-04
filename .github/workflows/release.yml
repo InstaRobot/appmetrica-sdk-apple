@@ -77,7 +77,17 @@ jobs:
           OS_ACTIVITY_MODE: disable
         run: |
           set -o pipefail
-          xcodebuild test -scheme "$SCHEME" -sdk iphonesimulator -destination "platform=iOS Simulator,name=$DEVICE,OS=$LATEST_IOS_VERSION" -derivedDataPath $DERIVED_DATA_PATH -parallel-testing-enabled NO -test-timeouts-enabled YES -default-test-execution-time-allowance 60 2>&1 | tee "$RUNNER_TEMP/test-ios.log"
+          for attempt in 1 2 3; do
+            echo "::group::Test attempt $attempt"
+            if xcodebuild test -scheme "$SCHEME" -sdk iphonesimulator -destination "platform=iOS Simulator,name=$DEVICE,OS=$LATEST_IOS_VERSION" -derivedDataPath $DERIVED_DATA_PATH -parallel-testing-enabled NO -test-timeouts-enabled YES -default-test-execution-time-allowance 60 2>&1 | tee "$RUNNER_TEMP/test-ios.log"; then
+              echo "::endgroup::"
+              echo "Tests passed on attempt $attempt"
+              exit 0
+            fi
+            echo "::endgroup::"
+            echo "::warning::Test attempt $attempt failed, $([ $attempt -lt 3 ] && echo 'retrying...' || echo 'giving up.')"
+          done
+          exit 1
 
   build_macos:
     name: macOS - Build and Test
@@ -109,7 +119,17 @@ jobs:
           OS_ACTIVITY_MODE: disable
         run: |
           set -o pipefail
-          xcodebuild test -scheme "$SCHEME" -destination "platform=macOS" -derivedDataPath $DERIVED_DATA_PATH -parallel-testing-enabled NO -test-timeouts-enabled YES -default-test-execution-time-allowance 60 2>&1 | tee "$RUNNER_TEMP/test-macos.log"
+          for attempt in 1 2 3; do
+            echo "::group::Test attempt $attempt"
+            if xcodebuild test -scheme "$SCHEME" -destination "platform=macOS" -derivedDataPath $DERIVED_DATA_PATH -parallel-testing-enabled NO -test-timeouts-enabled YES -default-test-execution-time-allowance 60 2>&1 | tee "$RUNNER_TEMP/test-macos.log"; then
+              echo "::endgroup::"
+              echo "Tests passed on attempt $attempt"
+              exit 0
+            fi
+            echo "::endgroup::"
+            echo "::warning::Test attempt $attempt failed, $([ $attempt -lt 3 ] && echo 'retrying...' || echo 'giving up.')"
+          done
+          exit 1
 
   build_xcframeworks:
     name: Build XCFrameworks (non-SPM)

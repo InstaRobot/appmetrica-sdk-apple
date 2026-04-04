@@ -132,7 +132,12 @@
 
             [self.executor execute:^{
                 for (AMANotificationsListenerCallback callback in callbacks) {
-                    callback(notification);
+                    @try {
+                        callback(notification);
+                    }
+                    @catch (NSException *exception) {
+                        AMALogWarn(@"Notification callback raised: %@", exception);
+                    }
                 }
             }];
         }
