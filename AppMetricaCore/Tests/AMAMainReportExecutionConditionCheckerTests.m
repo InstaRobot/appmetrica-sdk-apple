@@ -4,6 +4,7 @@
 #import "AMAStartupController.h"
 #import "AMAMetricaPersistentConfiguration.h"
 #import "AMAMetricaConfiguration.h"
+#import "AMAMetricaConfigurationTestUtilities.h"
 
 SPEC_BEGIN(AMAMainReportExecutionConditionCheckerTests)
 
@@ -17,11 +18,12 @@ describe(@"AMAMainReportExecutionConditionChecker", ^{
         startupController = [AMAStartupController nullMock];
         persistentConfiguration = [AMAMetricaPersistentConfiguration nullMock];
         AMAMetricaConfiguration *metricaConfiguration = [AMAMetricaConfiguration nullMock];
-        [AMAMetricaConfiguration stub:@selector(sharedInstance) andReturn:metricaConfiguration];
+        [AMAMetricaConfiguration amatest_setSharedInstanceOverride:metricaConfiguration];
         [metricaConfiguration stub:@selector(persistent) andReturn:persistentConfiguration];
         checker = [[AMAMainReportExecutionConditionChecker alloc] init];
     });
     afterEach(^{
+        [AMAMetricaConfiguration amatest_setSharedInstanceOverride:nil];
         [AMAMetricaConfiguration clearStubs];
     });
     context(@"Can be executed", ^{

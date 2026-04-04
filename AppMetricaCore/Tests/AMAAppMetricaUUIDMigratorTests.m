@@ -4,6 +4,7 @@
 #import "AMAAppMetricaUUIDMigrator.h"
 #import "AMAInstantFeaturesConfiguration+Migration.h"
 #import "AMAMetricaConfiguration.h"
+#import "AMAMetricaConfigurationTestUtilities.h"
 #import "AMADatabaseFactory.h"
 #import "AMACore.h"
 
@@ -34,13 +35,14 @@ describe(@"AMAAppMetricaUUIDMigratorTests", ^{
             instantConfiguration = [AMAInstantFeaturesConfiguration nullMock];
             migrationInstantConfiguration = [AMAInstantFeaturesConfiguration nullMock];
             uuidOldStorage = [KWMock nullMockForProtocol:@protocol(AMAKeyValueStoring)];
-            [AMAMetricaConfiguration stub:@selector(sharedInstance) andReturn:configuration];
+            [AMAMetricaConfiguration amatest_setSharedInstanceOverride:configuration];
             [AMAInstantFeaturesConfiguration stub:@selector(sharedInstance) andReturn:instantConfiguration];
             [AMAInstantFeaturesConfiguration stub:@selector(migrationInstance) andReturn:migrationInstantConfiguration];
             [configuration stub:@selector(UUIDOldStorage) andReturn:uuidOldStorage];
             [AMADatabaseFactory stub:@selector(configurationDatabasePath) andReturn:oldUUIDDatabasePath];
         });
         afterEach(^{
+            [AMAMetricaConfiguration amatest_setSharedInstanceOverride:nil];
             [AMAMetricaConfiguration clearStubs];
             [AMAInstantFeaturesConfiguration clearStubs];
             [AMADatabaseFactory clearStubs];

@@ -4,6 +4,7 @@
 #import "AMAEnvironmentContainer.h"
 #import "AMAReporterStorage.h"
 #import "AMAMetricaConfiguration.h"
+#import "AMAMetricaConfigurationTestUtilities.h"
 #import <AppMetricaTestUtils/AppMetricaTestUtils.h>
 
 SPEC_BEGIN(AMAReporterStoragesContainerTests)
@@ -22,7 +23,7 @@ describe(@"AMAReporterStoragesContainer", ^{
 
     beforeEach(^{
         metricaConfiguration = [AMAMetricaConfiguration nullMock];
-        [AMAMetricaConfiguration stub:@selector(sharedInstance) andReturn:metricaConfiguration];
+        [AMAMetricaConfiguration amatest_setSharedInstanceOverride:metricaConfiguration];
 
         eventEnvironment = [AMAEnvironmentContainer stubbedNullMockForDefaultInit];
         
@@ -42,6 +43,7 @@ describe(@"AMAReporterStoragesContainer", ^{
     });
     afterEach(^{
         [AMAEnvironmentContainer clearStubs];
+        [AMAMetricaConfiguration amatest_setSharedInstanceOverride:nil];
         [AMAMetricaConfiguration clearStubs];
         [AMAReporterStorage clearStubs];
     });

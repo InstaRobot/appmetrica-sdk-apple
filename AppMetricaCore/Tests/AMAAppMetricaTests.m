@@ -941,6 +941,7 @@ describe(@"AMAAppMetrica", ^{
                     [conf stub:@selector(deviceIDHash) andReturn:nil];
                 });
                 afterEach(^{
+                    [AMAMetricaConfiguration amatest_setSharedInstanceOverride:nil];
                     [AMAMetricaConfiguration clearStubs];
                 });
                 it(@"Should return error async", ^{
@@ -973,7 +974,7 @@ describe(@"AMAAppMetrica", ^{
                 });
                 it(@"Should migrate before return UUID", ^{
                     AMAMetricaConfiguration *configuration = [AMAMetricaConfiguration nullMock];
-                    [AMAMetricaConfiguration stub:@selector(sharedInstance) andReturn:configuration];
+                    [AMAMetricaConfiguration amatest_setSharedInstanceOverride:configuration];
                     [[configuration should] receive:@selector(ensureMigrated)];
                     
                     [AMAAppMetrica UUID];

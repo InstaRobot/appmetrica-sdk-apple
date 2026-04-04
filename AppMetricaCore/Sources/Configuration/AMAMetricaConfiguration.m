@@ -59,8 +59,19 @@ static NSString *const kAMAMetricaFallbackPrefix = @"fallback-keychain";
 @synthesize privateIdentifiersFileStorage = _privateIdentifiersFileStorage;
 @synthesize groupIdentifiersFileStorage = _groupIdentifiersFileStorage;
 
+static AMAMetricaConfiguration *amatest_sharedInstanceOverride = nil;
+
++ (void)amatest_setSharedInstanceOverride:(AMAMetricaConfiguration *)instance
+{
+    amatest_sharedInstanceOverride = instance;
+}
+
 + (instancetype)sharedInstance
 {
+    AMAMetricaConfiguration *override = amatest_sharedInstanceOverride;
+    if (override != nil) {
+        return override;
+    }
     static dispatch_once_t pred;
     static AMAMetricaConfiguration *shared = nil;
     dispatch_once(&pred, ^{

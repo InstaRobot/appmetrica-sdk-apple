@@ -1,6 +1,7 @@
 
 #import <AppMetricaKiwi/AppMetricaKiwi.h>
 #import "AMAMetricaConfiguration.h"
+#import "AMAMetricaConfigurationTestUtilities.h"
 #import "AMAMetricaPersistentConfiguration.h"
 #import "AMAEventCountByKeyHelper.h"
 
@@ -15,10 +16,11 @@ describe(@"AMAEventCountByKeyHelper", ^{
         persistentConfiguration = [AMAMetricaPersistentConfiguration nullMock];
         AMAMetricaConfiguration *metricaConfiguration = [AMAMetricaConfiguration nullMock];
         [metricaConfiguration stub:@selector(persistent) andReturn:persistentConfiguration];
-        [AMAMetricaConfiguration stub:@selector(sharedInstance) andReturn:metricaConfiguration];
+        [AMAMetricaConfiguration amatest_setSharedInstanceOverride:metricaConfiguration];
         helper = [[AMAEventCountByKeyHelper alloc] init];
     });
     afterEach(^{
+        [AMAMetricaConfiguration amatest_setSharedInstanceOverride:nil];
         [AMAMetricaConfiguration clearStubs];
     });
 

@@ -1827,10 +1827,11 @@ describe(@"AMAReporter", ^{
             persistentConfiguration = [AMAMetricaPersistentConfiguration nullMock];
             AMAMetricaConfiguration *metricaConfiguration = [AMAMetricaConfiguration nullMock];
             [metricaConfiguration stub:@selector(persistent) andReturn:persistentConfiguration];
-            [AMAMetricaConfiguration stub:@selector(sharedInstance) andReturn:metricaConfiguration];
+            [AMAMetricaConfiguration amatest_setSharedInstanceOverride:metricaConfiguration];
             reporter = [reporterTestHelper appReporterForApiKey:apiKey attributionCheckExecutor:attributionCheckExecutor];
         });
         afterEach(^{
+            [AMAMetricaConfiguration amatest_setSharedInstanceOverride:nil];
             [AMAMetricaConfiguration clearStubs];
         });
         it(@"Should proxy initial attribution check to right queue", ^{

@@ -10,6 +10,7 @@
 #import "AMAECommerceEventCondition.h"
 #import "AMAMetricaPersistentConfiguration.h"
 #import "AMAMetricaConfiguration.h"
+#import "AMAMetricaConfigurationTestUtilities.h"
 #import "AMALightRevenueEvent.h"
 #import "AMALightECommerceEvent.h"
 
@@ -24,10 +25,11 @@ describe(@"AMAConversionAttributionModel", ^{
         eventCountByKeyHelper = [AMAEventCountByKeyHelper nullMock];
         persistentConfiguration = [AMAMetricaPersistentConfiguration nullMock];
         AMAMetricaConfiguration *configuration = [AMAMetricaConfiguration nullMock];
-        [AMAMetricaConfiguration stub:@selector(sharedInstance) andReturn:configuration];
+        [AMAMetricaConfiguration amatest_setSharedInstanceOverride:configuration];
         [configuration stub:@selector(persistent) andReturn:persistentConfiguration];
     });
     afterEach(^{
+        [AMAMetricaConfiguration amatest_setSharedInstanceOverride:nil];
         [AMAMetricaConfiguration clearStubs];
     });
     context(@"Client event", ^{

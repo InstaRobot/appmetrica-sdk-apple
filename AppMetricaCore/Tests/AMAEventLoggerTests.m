@@ -2,6 +2,7 @@
 #import <AppMetricaKiwi/AppMetricaKiwi.h>
 #import "AMAEventLogger.h"
 #import "AMAMetricaConfiguration.h"
+#import "AMAMetricaConfigurationTestUtilities.h"
 #import "AMAReporterConfiguration.h"
 #import "AMAEvent.h"
 #import "AMALogSpy.h"
@@ -27,7 +28,7 @@ describe(@"AMAEventLogger", ^{
         reporterConfiguration = [AMAReporterConfiguration nullMock];
         configurationInstance = [AMAMetricaConfiguration nullMock];
         [configurationInstance stub:@selector(configurationForApiKey:) andReturn:reporterConfiguration];
-        [AMAMetricaConfiguration stub:@selector(sharedInstance) andReturn:configurationInstance];
+        [AMAMetricaConfiguration amatest_setSharedInstanceOverride:configurationInstance];
 
         event = [AMAEvent nullMock];
         [event stub:@selector(name) andReturn:eventName];
@@ -43,6 +44,7 @@ describe(@"AMAEventLogger", ^{
     });
     afterEach(^{
         [AMALogFacade clearStubs];
+        [AMAMetricaConfiguration amatest_setSharedInstanceOverride:nil];
         [AMAMetricaConfiguration clearStubs];
     });
 

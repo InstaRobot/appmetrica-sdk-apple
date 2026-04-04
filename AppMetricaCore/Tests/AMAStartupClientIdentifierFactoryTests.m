@@ -6,6 +6,7 @@
 #import "AMAStartupClientIdentifierFactory.h"
 #import "AMAStartupClientIdentifier.h"
 #import "AMAMetricaConfiguration.h"
+#import "AMAMetricaConfigurationTestUtilities.h"
 #import "AMAMetricaPersistentConfiguration.h"
 @import AppMetricaIdentifiers;
 
@@ -34,7 +35,7 @@ describe(@"AMAStartupClientIdentifierFactory", ^{
     
     beforeEach(^{
         configuration = [AMAMetricaConfiguration nullMock];
-        [AMAMetricaConfiguration stub:@selector(sharedInstance) andReturn:configuration];
+        [AMAMetricaConfiguration amatest_setSharedInstanceOverride:configuration];
         
         persistent = [AMAMetricaPersistentConfiguration nullMock];
         [configuration stub:@selector(persistent) andReturn:persistent];
@@ -55,6 +56,7 @@ describe(@"AMAStartupClientIdentifierFactory", ^{
 #endif
     });
     afterEach(^{
+        [AMAMetricaConfiguration amatest_setSharedInstanceOverride:nil];
         [AMAMetricaConfiguration clearStubs];
 #if TARGET_OS_IPHONE
         [UIDevice clearStubs];

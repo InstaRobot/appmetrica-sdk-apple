@@ -58,6 +58,7 @@
 #import "AMALocation.h"
 #import "AMAVisit.h"
 #import "AMAMetricaConfiguration.h"
+#import "AMAMetricaConfigurationTestUtilities.h"
 #import "AMAMetricaPersistentConfiguration.h"
 #import "AMADatabaseMigrationTestsUtils.h"
 #import "AMAStartupParametersConfiguration.h"
@@ -101,11 +102,12 @@ describe(@"AMADataMigrationsTests", ^{
         [configuration stub:@selector(instant) andReturn:instantMock];
         [configuration stub:@selector(identifierProvider) andReturn:idProvider];
         
-        [AMAMetricaConfiguration stub:@selector(sharedInstance) andReturn:configuration];
+        [AMAMetricaConfiguration amatest_setSharedInstanceOverride:configuration];
     });
     afterEach(^{
         [AMAPlatformDescription clearStubs];
         [AMAInstantFeaturesConfiguration clearStubs];
+        [AMAMetricaConfiguration amatest_setSharedInstanceOverride:nil];
         [AMAMetricaConfiguration clearStubs];
         [reporterTestHelper destub];
     });

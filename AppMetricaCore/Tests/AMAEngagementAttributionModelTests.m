@@ -2,6 +2,7 @@
 #import <AppMetricaKiwi/AppMetricaKiwi.h>
 #import "AMAMetricaPersistentConfiguration.h"
 #import "AMAMetricaConfiguration.h"
+#import "AMAMetricaConfigurationTestUtilities.h"
 #import "AMAEventCountByKeyHelper.h"
 #import "AMAEngagementAttributionModel.h"
 #import "AMABoundMappingChecker.h"
@@ -27,11 +28,12 @@ describe(@"AMAEngagementAttributionModel", ^{
         boundMappingChecker = [AMABoundMappingChecker nullMock];
         persistentConfiguration = [AMAMetricaPersistentConfiguration nullMock];
         AMAMetricaConfiguration *configuration = [AMAMetricaConfiguration nullMock];
-        [AMAMetricaConfiguration stub:@selector(sharedInstance) andReturn:configuration];
+        [AMAMetricaConfiguration amatest_setSharedInstanceOverride:configuration];
         [configuration stub:@selector(persistent) andReturn:persistentConfiguration];
         [persistentConfiguration stub:@selector(conversionValue) andReturn:@13];
     });
     afterEach(^{
+        [AMAMetricaConfiguration amatest_setSharedInstanceOverride:nil];
         [AMAMetricaConfiguration clearStubs];
     });
     context(@"Client event", ^{

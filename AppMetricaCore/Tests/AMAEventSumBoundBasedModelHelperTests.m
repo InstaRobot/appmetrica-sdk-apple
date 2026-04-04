@@ -5,6 +5,7 @@
 #import "AMAEventSumBoundBasedModelHelper.h"
 #import "AMAMetricaPersistentConfiguration.h"
 #import "AMAMetricaConfiguration.h"
+#import "AMAMetricaConfigurationTestUtilities.h"
 #import "AMABoundMapping.h"
 
 SPEC_BEGIN(AMAEventBoundBasedModelHelperTests)
@@ -17,12 +18,13 @@ describe(@"AMAEventBoundBasedModelHelper", ^{
     beforeEach(^{
         persistentConfiguration = [AMAMetricaPersistentConfiguration nullMock];
         AMAMetricaConfiguration *metricaConfiguration = [AMAMetricaConfiguration nullMock];
-        [AMAMetricaConfiguration stub:@selector(sharedInstance) andReturn:metricaConfiguration];
+        [AMAMetricaConfiguration amatest_setSharedInstanceOverride:metricaConfiguration];
         [metricaConfiguration stub:@selector(persistent) andReturn:persistentConfiguration];
         boundMappingChecker = [AMABoundMappingChecker nullMock];
         helper = [[AMAEventSumBoundBasedModelHelper alloc] initWithBoundMappingChecker:boundMappingChecker];
     });
     afterEach(^{
+        [AMAMetricaConfiguration amatest_setSharedInstanceOverride:nil];
         [AMAMetricaConfiguration clearStubs];
     });
 

@@ -5,6 +5,7 @@
 
 #import "AMAPermissionsConfiguration.h"
 #import "AMAMetricaConfiguration.h"
+#import "AMAMetricaConfigurationTestUtilities.h"
 #import "AMAStartupParametersConfiguration.h"
 #import "AMAMetricaPersistentConfiguration.h"
 
@@ -25,11 +26,12 @@ describe(@"AMAPermissionsConfiguration", ^{
         [configMock stub:@selector(startup) andReturn:startupMock];
         [configMock stub:@selector(persistent) andReturn:persistentMock];
 
-        [AMAMetricaConfiguration stub:@selector(sharedInstance) andReturn:configMock];
+        [AMAMetricaConfiguration amatest_setSharedInstanceOverride:configMock];
     
         configuration = [[AMAPermissionsConfiguration alloc] init];
     });
     afterEach(^{
+        [AMAMetricaConfiguration amatest_setSharedInstanceOverride:nil];
         [AMAMetricaConfiguration clearStubs];
     });
     

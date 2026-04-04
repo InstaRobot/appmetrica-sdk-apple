@@ -6,6 +6,7 @@
 #import "AMAAppMetricaPreloadInfo.h"
 #import "AMADataSendingRestrictionController.h"
 #import "AMAMetricaConfiguration.h"
+#import "AMAMetricaConfigurationTestUtilities.h"
 #import "AMALocationManager.h"
 #import "AMADispatchStrategiesContainer.h"
 #import "AMAConfigForAnonymousActivationProvider.h"
@@ -61,7 +62,7 @@ describe(@"AMAAppMetricaConfigurationManager", ^{
         restrictionController = [AMADataSendingRestrictionController sharedInstance];
         anonymousConfigProviderMock = [AMAConfigForAnonymousActivationProvider nullMock];
         
-        [AMAMetricaConfiguration stub:@selector(sharedInstance) andReturn:metricaConfigurationMock];
+        [AMAMetricaConfiguration amatest_setSharedInstanceOverride:metricaConfigurationMock];
 
         configManager = [[AMAAppMetricaConfigurationManager alloc] initWithExecutor:executor
                                                                 strategiesContainer:strategiesContainerMock
@@ -72,6 +73,7 @@ describe(@"AMAAppMetricaConfigurationManager", ^{
                                                                  adProviderResolver:adResolver];
     });
     afterEach(^{
+        [AMAMetricaConfiguration amatest_setSharedInstanceOverride:nil];
         [AMAMetricaConfiguration clearStubs];
         [[AMADataSendingRestrictionController sharedInstance] clearStubs];
         [AMAPlatformDescription clearStubs];

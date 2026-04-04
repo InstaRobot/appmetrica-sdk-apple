@@ -7,6 +7,7 @@
 #import "AMAReporter.h"
 #import "AMAMetricaPersistentConfiguration.h"
 #import "AMAMetricaConfiguration.h"
+#import "AMAMetricaConfigurationTestUtilities.h"
 
 SPEC_BEGIN(AMAAttributionControllerTests)
 
@@ -19,9 +20,10 @@ describe(@"AMAAttributionController", ^{
         persistentConfiguration = [AMAMetricaPersistentConfiguration nullMock];
         AMAMetricaConfiguration *metricaConfiguration = [AMAMetricaConfiguration nullMock];
         [metricaConfiguration stub:@selector(persistent) andReturn:persistentConfiguration];
-        [AMAMetricaConfiguration stub:@selector(sharedInstance) andReturn:metricaConfiguration];
+        [AMAMetricaConfiguration amatest_setSharedInstanceOverride:metricaConfiguration];
     });
     afterEach(^{
+        [AMAMetricaConfiguration amatest_setSharedInstanceOverride:nil];
         [AMAMetricaConfiguration clearStubs];
     });
     

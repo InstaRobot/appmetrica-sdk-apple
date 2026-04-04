@@ -6,6 +6,7 @@
 #import "AMADeepLinkPayloadFactory.h"
 #import "AMAReporter.h"
 #import "AMAMetricaConfiguration.h"
+#import "AMAMetricaConfigurationTestUtilities.h"
 #import "AMAStartupParametersConfiguration.h"
 
 SPEC_BEGIN(AMADeepLinkControllerTests)
@@ -64,10 +65,11 @@ describe(@"AMADeepLinkController", ^{
         beforeEach(^{
             AMAMetricaConfiguration *metricaConfiguration = [AMAMetricaConfiguration nullMock];
             startup = [AMAStartupParametersConfiguration nullMock];
-            [AMAMetricaConfiguration stub:@selector(sharedInstance) andReturn:metricaConfiguration];
+            [AMAMetricaConfiguration amatest_setSharedInstanceOverride:metricaConfiguration];
             [metricaConfiguration stub:@selector(startup) andReturn:startup];
         });
         afterEach(^{
+            [AMAMetricaConfiguration amatest_setSharedInstanceOverride:nil];
             [AMAMetricaConfiguration clearStubs];
         });
 

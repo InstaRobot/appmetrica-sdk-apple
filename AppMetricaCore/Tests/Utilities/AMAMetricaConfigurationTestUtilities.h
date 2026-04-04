@@ -5,6 +5,10 @@
 #import "AMAMetricaPersistentConfiguration.h"
 #import "AMAStartupParametersConfiguration.h"
 
+@interface AMAMetricaConfiguration (AMATestOverride)
++ (void)amatest_setSharedInstanceOverride:(AMAMetricaConfiguration *)instance;
+@end
+
 @interface AMAMetricaConfigurationTestUtilities : NSObject
 
 + (void)stubConfigurationWithAppVersion:(NSString *)appVersion buildNumber:(uint32_t)buildNumber;

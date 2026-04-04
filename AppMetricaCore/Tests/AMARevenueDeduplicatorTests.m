@@ -4,6 +4,7 @@
 #import "AMARevenueDeduplicator.h"
 #import "AMAMetricaPersistentConfiguration.h"
 #import "AMAMetricaConfiguration.h"
+#import "AMAMetricaConfigurationTestUtilities.h"
 
 SPEC_BEGIN(AMARevenueDeduplicatorTests)
 
@@ -17,11 +18,12 @@ describe(@"AMARevenueDeduplicator", ^{
         config = [AMAAttributionModelConfiguration nullMock];
         AMAMetricaConfiguration *configuration = [AMAMetricaConfiguration nullMock];
         persistent = [AMAMetricaPersistentConfiguration nullMock];
-        [AMAMetricaConfiguration stub:@selector(sharedInstance) andReturn:configuration];
+        [AMAMetricaConfiguration amatest_setSharedInstanceOverride:configuration];
         [configuration stub:@selector(persistent) andReturn:persistent];
         revenueDeduplicator = [[AMARevenueDeduplicator alloc] initWithConfig:config];
     });
     afterEach(^{
+        [AMAMetricaConfiguration amatest_setSharedInstanceOverride:nil];
         [AMAMetricaConfiguration clearStubs];
     });
 

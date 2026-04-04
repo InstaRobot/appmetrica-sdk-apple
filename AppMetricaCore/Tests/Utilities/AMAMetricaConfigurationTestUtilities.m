@@ -29,7 +29,7 @@
                                                        database:database
                                      appGroupIdentifierProvider:[AMAAppGroupIdentifierProvider new]
                                  appMetricaConfigurationStorage:storingMock];
-    [AMAMetricaConfiguration stub:@selector(sharedInstance) andReturn:config];
+    [AMAMetricaConfiguration amatest_setSharedInstanceOverride:config];
 }
 
 + (void)stubConfigurationWithNullMock
@@ -41,12 +41,12 @@
     [configuration stub:@selector(instant) andReturn:[AMAInstantFeaturesConfiguration nullMock]];
     [configuration stub:@selector(identifierProvider) andReturn:[KWMock nullMockForProtocol:@protocol(AMAIdentifierProviding)]];
     
-    [AMAMetricaConfiguration stub:@selector(sharedInstance) andReturn:configuration];
+    [AMAMetricaConfiguration amatest_setSharedInstanceOverride:configuration];
 }
 
 + (void)destubConfiguration
 {
-    [AMAMetricaConfiguration clearStubs];
+    [AMAMetricaConfiguration amatest_setSharedInstanceOverride:nil];
     [AMAPlatformDescription clearStubs];
 }
 

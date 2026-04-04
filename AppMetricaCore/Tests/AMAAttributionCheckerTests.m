@@ -9,6 +9,7 @@
 #import "AMAMetricaPersistentConfiguration.h"
 #import "AMASKAdNetworkRequestor.h"
 #import "AMAMetricaConfiguration.h"
+#import "AMAMetricaConfigurationTestUtilities.h"
 #import "AMAAttributionModelConfiguration.h"
 #import "AMAEvent.h"
 #import "AMARevenueInfo.h"
@@ -49,7 +50,7 @@ describe(@"AMAAttributionChecker", ^{
         [AMASKAdNetworkRequestor stub:@selector(sharedInstance) andReturn:skadNetworkRequestor];
         AMAMetricaConfiguration *metricaConfiguration = [AMAMetricaConfiguration nullMock];
         [metricaConfiguration stub:@selector(persistent) andReturn:persistentConfiguration];
-        [AMAMetricaConfiguration stub:@selector(sharedInstance) andReturn:metricaConfiguration];
+        [AMAMetricaConfiguration amatest_setSharedInstanceOverride:metricaConfiguration];
         delegate = [[AMAAttributionChecker alloc] initWithConfig:config
                                                         reporter:reporter
                                                 attributionModel:attributionModel
@@ -59,6 +60,7 @@ describe(@"AMAAttributionChecker", ^{
     });
     afterEach(^{
         [AMASKAdNetworkRequestor clearStubs];
+        [AMAMetricaConfiguration amatest_setSharedInstanceOverride:nil];
         [AMAMetricaConfiguration clearStubs];
     });
 
