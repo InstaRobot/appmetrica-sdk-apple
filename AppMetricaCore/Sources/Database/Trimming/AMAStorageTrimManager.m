@@ -85,7 +85,8 @@
     [self.listener subscribeObject:database
                     toNotification:memoryNotification
                       withCallback:^(NSNotification *notification) {
-        [trimmer trimDatabase:weakDatabase];
+        __strong __typeof(weakDatabase) strongDatabase = weakDatabase;
+        [trimmer trimDatabase:strongDatabase];
     }];
 #else
     @synchronized (self) {
@@ -138,8 +139,9 @@
             return;
         }
         AMALogInfo(@"Check event count trimming for '%@'. Notification: %@", apiKey, notification);
+        __strong __typeof(weakDatabase) strongDatabase = weakDatabase;
         [trimmer handleEventAdding];
-        [trimmer trimDatabase:weakDatabase];
+        [trimmer trimDatabase:strongDatabase];
     }];
 }
 
