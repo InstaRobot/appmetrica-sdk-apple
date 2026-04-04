@@ -20,6 +20,11 @@
 #import "AMAReporterStateStorage.h"
 #import "AMASessionStorage+AMATestUtilities.h"
 #import "AMAReporterTestHelper.h"
+#import "AMAStartupController.h"
+
+@interface AMAAppMetricaImpl ()
+@property (nonatomic, strong) AMAStartupController *startupController;
+@end
 
 SPEC_BEGIN(AMAMetricaSessionsTests)
 
@@ -31,6 +36,7 @@ describe(@"AMAMetricaSessions", ^{
     AMAStubHostAppStateProvider *__block hostAppStateProvider = nil;
     AMAReporterStateStorage *__block stateStorage = nil;
     AMASessionStorage *__block sessionStorage = nil;
+    AMAAppMetricaImpl *__block impl = nil;
 
     void (^stubSharedImpl)(void) = ^{
         [NSURLProtocol registerClass:[AMATestURLProtocol class]];
@@ -39,7 +45,7 @@ describe(@"AMAMetricaSessions", ^{
         hostStateProvider.hostState = AMAHostAppStateBackground;
         hostAppStateProvider = [[AMAStubHostAppStateProvider alloc] init];
         reporterTestHelper = [[AMAReporterTestHelper alloc] init];
-        AMAAppMetricaImpl *impl =
+        impl =
         [AMAAppMetricaImplTestFactory createCurrentQueueImplWithReporterHelper:reporterTestHelper
                                                              hostStateProvider:hostAppStateProvider];
         [AMAAppMetrica stub:@selector(sharedImpl) andReturn:impl];
@@ -66,9 +72,14 @@ describe(@"AMAMetricaSessions", ^{
     };
     
     afterEach(^{
+        [impl.startupController cancel];
+        impl = nil;
+
+        [reporterTestHelper destub];
+        reporterTestHelper = nil;
+
         [AMAMetricaConfigurationTestUtilities destubConfiguration];
         [AMAAppMetrica clearStubs];
-        [reporterTestHelper destub];
 #if TARGET_OS_IPHONE
         [UIApplication clearStubs];
 #endif

@@ -49,9 +49,18 @@ describe(@"AMASessionsCleaner", ^{
         cleaner = reporterStorage.sessionsCleaner;
     });
     afterEach(^{
-        [AMAMetricaConfigurationTestUtilities destubConfiguration];
-        [AMAReporterStoragesContainer clearStubs];
+        cleaner = nil;
+        lastSession = nil;
+        previousSession = nil;
+        firstSession = nil;
+        sessionStorage = nil;
+        eventStorage = nil;
+
         [reporterTestHelper destub];
+        reporterTestHelper = nil;
+
+        [AMAReporterStoragesContainer clearStubs];
+        [AMAMetricaConfigurationTestUtilities destubConfiguration];
     });
 
     NSArray *(^oidsArray)(NSArray *dbObjects) = ^NSArray *(NSArray *dbObjects) {
