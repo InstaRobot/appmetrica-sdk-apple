@@ -58,6 +58,7 @@ describe(@"AMAEventLogger", ^{
     context(@"Log enabled", ^{
         beforeEach(^{
             [reporterConfiguration stub:@selector(logsEnabled) andReturn:theValue(YES)];
+            [logSpy clearMessages];
         });
         NSString *(^suffixWithNullMetainfo)(NSString *, NSString *, NSString *) = ^(NSString *prefix,
                                                                                     NSString *eventName,
@@ -209,6 +210,7 @@ describe(@"AMAEventLogger", ^{
     context(@"Log disabled", ^{
         beforeEach(^{
             [reporterConfiguration stub:@selector(logsEnabled) andReturn:theValue(NO)];
+            [logSpy clearMessages];
         });
         NSString *(^textForEvent)(NSString *, NSString *) = ^(NSString *typeName, NSString *action) {
             NSString *text =

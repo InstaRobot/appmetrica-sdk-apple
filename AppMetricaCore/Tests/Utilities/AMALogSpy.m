@@ -121,6 +121,11 @@
     return [self.mutableMessages copy];
 }
 
+- (void)clearMessages
+{
+    [self.mutableMessages removeAllObjects];
+}
+
 - (void)logMessageToChannel:(AMALogChannel)channel
                       level:(AMALogLevel)level
                        file:(const char *)file

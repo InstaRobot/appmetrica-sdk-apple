@@ -30,6 +30,8 @@
 
 @property (nonatomic, copy, readonly) NSArray *messages;
 
+- (void)clearMessages;
+
 - (void)logMessageToChannel:(AMALogChannel)channel
                       level:(AMALogLevel)level
                        file:(const char *)file
