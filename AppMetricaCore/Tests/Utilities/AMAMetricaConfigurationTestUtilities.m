@@ -47,6 +47,7 @@
 + (void)destubConfiguration
 {
     [AMAMetricaConfiguration amatest_setSharedInstanceOverride:nil];
+    [AMAMetricaConfiguration clearStubs];
     [AMAPlatformDescription clearStubs];
 }
 

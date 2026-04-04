@@ -2,6 +2,7 @@
 #import <AppMetricaPlatform/AppMetricaPlatform.h>
 #import "AMAApplicationStateManager.h"
 #import "AMAAppStateManagerTestHelper.h"
+#import "AMAMetricaConfigurationTestUtilities.h"
 
 SPEC_BEGIN(AMAApplicationStateManagerTests)
 
@@ -10,8 +11,14 @@ describe(@"AMAApplicationStateManager", ^{
     AMAAppStateManagerTestHelper *__block testHelper;
     
     beforeEach(^{
+        [AMAMetricaConfigurationTestUtilities stubConfiguration];
         testHelper = [[AMAAppStateManagerTestHelper alloc] init];
         [testHelper stubApplicationState];
+    });
+    afterEach(^{
+        [testHelper destubApplicationState];
+        testHelper = nil;
+        [AMAMetricaConfigurationTestUtilities destubConfiguration];
     });
 
     context(@"when creating an application state", ^{
