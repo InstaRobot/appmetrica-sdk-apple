@@ -21,7 +21,7 @@ describe(@"AMAReportRequestProvider", ^{
     AMAReportRequestProvider * __block requestProvider = nil;
 
     beforeEach(^{
-        [AMAMetricaConfigurationTestUtilities stubConfigurationWithNullMock];
+        [AMAMetricaConfigurationTestUtilities stubConfiguration];
         reporterTestHelper = [[AMAReporterTestHelper alloc] init];
         requestProvider = [reporterTestHelper appReporter].reporterStorage.reportRequestProvider;
     });

@@ -53,7 +53,7 @@ describe(@"AMADispatcher", ^{
         [reportRequestModel stub:@selector(eventsBatches) andReturn:eventBatches];
         requestModels = @[ reportRequestModel ];
 
-        [AMAMetricaConfigurationTestUtilities stubConfigurationWithNullMock];
+        [AMAMetricaConfigurationTestUtilities stubConfiguration];
         configuration = [AMAMetricaConfiguration sharedInstance];
         [configuration.startup stub:@selector(reportHosts) andReturn:@[@"host"]];
         [configuration.persistent stub:@selector(deviceID) andReturn:@"DeviceID"];

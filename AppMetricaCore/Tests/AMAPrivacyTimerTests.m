@@ -23,7 +23,7 @@
 
 - (void)setUp 
 {
-    self.rertyNumbers = @[@(1), @(2), @(3)];
+    self.rertyNumbers = @[@(0.1), @(0.2), @(0.3)];
     
     self.executor = [[AMAExecutor alloc] initWithQueue:dispatch_get_main_queue()];
     
@@ -75,7 +75,7 @@
     
     [privacyTimer start];
     
-    [bag waitForExpectationsWithTimeout:10];
+    [bag waitForExpectationsWithTimeout:3];
 }
 
 - (void)testMultitimerDidFireCount
@@ -93,7 +93,7 @@
     
     [privacyTimer start];
     
-    [bag waitForExpectationsWithTimeout:10];
+    [bag waitForExpectationsWithTimeout:5];
 }
 
 - (void)testNotFireIfOutdated
@@ -131,7 +131,7 @@
     [privacyTimer start];
     [privacyTimer stop];
     
-    [bag waitForExpectationsWithTimeout:10];
+    [bag waitForExpectationsWithTimeout:3];
 }
 
 - (void)testFireCalledAfterFirstTimer
@@ -154,7 +154,7 @@
     [self.adProvider stub:@selector(isAdvertisingTrackingEnabled) andReturn:theValue(YES)];
     [lock unlock];
     
-    [bag waitForExpectationsWithTimeout:10];
+    [bag waitForExpectationsWithTimeout:5];
 }
 
 

@@ -47,7 +47,7 @@ describe(@"AMAReportRequestTests", ^{
     
     AMAReporterTestHelper *__block reporterTestHelper = nil;
     beforeEach(^{
-        [AMAMetricaConfigurationTestUtilities stubConfigurationWithNullMock];
+        [AMAMetricaConfigurationTestUtilities stubConfiguration];
         reporterTestHelper = [[AMAReporterTestHelper alloc] init];
         NSObject<AMADataEncoding> *encoder = [KWMock nullMockForProtocol:@protocol(AMADataEncoding)];
         [AMAReportPayloadEncoderFactory stub:@selector(encoder) andReturn:encoder];
