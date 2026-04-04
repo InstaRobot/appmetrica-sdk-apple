@@ -54,6 +54,12 @@ describe(@"AMAAppMetrica", ^{
         [AMATestNetwork stubHTTPRequestWithBlock:nil];
     });
     afterEach(^{
+        [impl.startupController cancel];
+        impl = nil;
+
+        [reporterTestHelper destub];
+        reporterTestHelper = nil;
+
         [AMAMetricaConfiguration clearStubs];
         [AMAMetricaConfiguration.sharedInstance clearStubs];
         [AMAMetricaConfiguration.sharedInstance.inMemory clearStubs];
@@ -69,7 +75,6 @@ describe(@"AMAAppMetrica", ^{
         [AMAAdProvider clearStubs];
         [AMAAdProviderResolver clearStubs];
         [AMALocationResolver clearStubs];
-        [reporterTestHelper destub];
         [AMAIdentifiersTestUtilities destubAll];
         [AMAFailureDispatcherTestHelper destub];
     });

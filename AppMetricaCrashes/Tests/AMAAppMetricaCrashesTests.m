@@ -91,6 +91,14 @@ describe(@"AMAAppMetricaCrashes", ^{
                                              externalCrashLoader:externalCrashLoader];
     });
     afterEach(^{
+        crashes = nil;
+        crashProcessor = nil;
+        anrDetectorMock = nil;
+        crashReporter = nil;
+        stateNotifier = nil;
+        crashLoader = nil;
+        externalCrashLoader = nil;
+
         [AMAAppMetrica clearStubs];
         [AMAPlatformDescription clearStubs];
         [AMAAppMetricaCrashes clearStubs];
@@ -673,6 +681,10 @@ describe(@"AMAAppMetricaCrashes", ^{
         beforeEach(^{
             sampleQueue = dispatch_queue_create("sample.queue", DISPATCH_QUEUE_SERIAL);
             sampleBlock = ^(NSDictionary * _Nullable state){};
+        });
+        afterEach(^{
+            sampleQueue = nil;
+            sampleBlock = nil;
         });
         
         it(@"Should add an observer to the stateNotifier when not activated", ^{

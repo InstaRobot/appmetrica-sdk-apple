@@ -127,11 +127,11 @@ NSErrorDomain const AMAStartupRequestsErrorDomain = @"AMAStartupRequestsErrorDom
         if (strongSelf != nil) {
             @synchronized (strongSelf) {
                 if (httpRequestor == strongSelf.currentHTTPRequestor) {
-                    if ([self.timeoutRequestsController isAllowed]) {
+                    if ([strongSelf.timeoutRequestsController isAllowed]) {
                         [httpRequestor start];
                     }
                     else {
-                        [self reportOfTimeoutWithRequest:httpRequestor];
+                        [strongSelf reportOfTimeoutWithRequest:httpRequestor];
                     }
                 }
             }
