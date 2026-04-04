@@ -49,7 +49,8 @@ archive_scheme() {
     SKIP_INSTALL=NO \
     BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
     CODE_SIGNING_ALLOWED=NO \
-    SWIFT_VALIDATE_MODULE_INTERFACE=NO
+    SWIFT_VALIDATE_EMITTED_MODULE_INTERFACE=NO \
+    OTHER_SWIFT_FLAGS='-no-verify-emitted-module-interface'
 }
 
 build_one_xcframework() {
