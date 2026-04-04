@@ -48,7 +48,8 @@ archive_scheme() {
     -derivedDataPath "$dd" \
     SKIP_INSTALL=NO \
     BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
-    CODE_SIGNING_ALLOWED=NO
+    CODE_SIGNING_ALLOWED=NO \
+    SWIFT_VALIDATE_MODULE_INTERFACE=NO
 }
 
 build_one_xcframework() {
